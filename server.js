@@ -6,13 +6,13 @@ dotenv.config({ path: './config.env' });
 const app = require('./app');
 
 const db = process.env.DB_URL.replace(
-    /<USER>|<PASS>|<CLUSTER>|<NAME>/gi,
+    /<DB_USER>|<DB_PASS>|<DB_CLUSTER>|<DB_NAME>/gi,
     (arg) => {
         return {
-            '<USER>': process.env.DB_USER,
-            '<PASS>': process.env.DB_PASS,
-            '<CLUSTER>': process.env.DB_CLUSTER,
-            '<NAME>': process.env.DB_NAME,
+            '<DB_USER>': process.env.DB_USER,
+            '<DB_PASS>': process.env.DB_PASS,
+            '<DB_CLUSTER>': process.env.DB_CLUSTER,
+            '<DB_NAME>': process.env.DB_NAME,
         }[arg];
     }
 );
