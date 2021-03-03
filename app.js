@@ -7,7 +7,8 @@ const tourRouter = require('./route/tour-routes');
 const userRouter = require('./route/user-routes');
 
 // Non-development-dependency - development logging middleware.
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development')
+    app.use(morgan('dev'));
 
 // A middleware that exposes data to the request object.
 app.use(express.json());
