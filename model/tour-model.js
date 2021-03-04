@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const tourSchema = new mongoose.Schema({
     name: {
@@ -51,6 +52,7 @@ const tourSchema = new mongoose.Schema({
         //select: false,
     },
     startDates: [Date],
+    slug: String
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -60,6 +62,18 @@ const tourSchema = new mongoose.Schema({
 // Wont be persisted in the data, it's gonna be presented as soon as we get the data.
 tourSchema.virtual('durationWeeks').get(function() {
     return this.duration / 7;
+});
+
+// Document Middlewares
+// runs before .save() and .create(), have access to the document being saved.
+tourSchema.pre('save', function(next) {
+    this.slug = slugify(this.name, { lowercase: true });
+    next();
+});
+
+tourSchema.post('save', function(doc, next) {
+    console.log(doc);
+    next();
 });
 
 const Tour = mongoose.model('Tour', tourSchema);
