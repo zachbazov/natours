@@ -10,6 +10,12 @@ const handleDuplicateFieldsDb = err => {
     return new AppError(message, 400);
 }
 
+const handleValidationErrorDb = err => {
+    const errors = Object.values(err.errors).map(val => val.message);
+    const message = `Invalid input data. ${errors.join(' ')}`;
+    return new AppError(message, 400);
+}
+
 const sendErrorDev = (err, res) => {
     res.status(err.statusCode).json({
         status: err.status,
@@ -40,6 +46,7 @@ const sendErrorProd = (err, res) => {
 }
 
 // Error Types Handler
+// Marks errors as operational, isOperational = true.
 module.exports = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
@@ -50,6 +57,7 @@ module.exports = (err, req, res, next) => {
         //console.error(error.name, error);
         if (error.name === 'CastError') error = handleCastErrorDb(error);
         if (error.name === 'MongoError' && error.code === 11000) error = handleDuplicateFieldsDb(error);
+        if (error.name === 'ValidationError') error = handleValidationErrorDb(error);
         sendErrorProd(error, res);
     }
 }
