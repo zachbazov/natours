@@ -52,7 +52,11 @@ const tourSchema = new mongoose.Schema({
         //select: false,
     },
     startDates: [Date],
-    slug: String
+    slug: String,
+    secretTour: {
+        type: Boolean,
+        default: false
+    }
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -71,8 +75,19 @@ tourSchema.pre('save', function(next) {
     next();
 });
 
-tourSchema.post('save', function(doc, next) {
-    console.log(doc);
+// Query Middlewares
+// RegEx - all the strings that starts with 'find'.
+tourSchema.pre(/^find/, function(next) {
+    this.find({ secretTour: { $ne: true } });
+    // Used for measuring the execution time.
+    this.start = Date.now();
+    next();
+});
+
+// Measures the execution time of a query.
+tourSchema.post(/^find/, function(docs, next) {
+    console.log(`Query executed in ${Date.now() - this.start} ms.`);
+    //console.log(docs);
     next();
 });
 
