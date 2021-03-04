@@ -6,6 +6,15 @@ const app = express();
 const tourRouter = require('./route/tour-routes');
 const userRouter = require('./route/user-routes');
 
+// Error Handling
+// In case a route hasn't found on the server.
+app.all('*', (req, res, next) => {
+    res.status(404).json({
+        status: 'failure',
+        message: `Can't find ${req.originalUrl} on the server.`
+    });
+});
+
 // Non-development-dependency - development logging middleware.
 if (process.env.NODE_ENV === 'development')
     app.use(morgan('dev'));
