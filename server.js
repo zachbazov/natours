@@ -5,6 +5,12 @@ dotenv.config({ path: './config.env' });
 
 const app = require('./app');
 
+// Uncaught Exception Error
+process.on('uncaughtException', (err) => {
+    console.log(`[UncaughtException] [${err.name}]`, err.message);
+    process.exit(1);
+});
+
 const db = process.env.DB_URL
     .replace(/<DB_USER>|<DB_PASS>|<DB_CLUSTER>|<DB_NAME>/gi, (arg) => {
         return {
@@ -31,6 +37,7 @@ const server = app.listen(process.env.PORT,
 
 // Unhandled Rejection Error
 process.on('unhandledRejection', (err) => {
-    console.log(`[unhandledRejection] [${err.name}]`, err.message);
+    console.log(`[UnhandledRejection] [${err.name}]`, err.message);
+    // Optional: crashing the server.
     server.close(() => process.exit(1));
 });
