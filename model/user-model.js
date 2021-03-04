@@ -23,7 +23,12 @@ const userSchema = new mongoose.Schema({
     },
     passwordConfirm: {
         type: String,
-        required: [true, 'A reconfirmation of your password is required.']
+        required: [true, 'A reconfirmation of your password is required.'],
+        // This validator will only work on .save(), .create().
+        validate: {
+            validator: function(el) { return el === this.password; },
+            message: 'Passwords do not match.'
+        }
     }
 });
 
