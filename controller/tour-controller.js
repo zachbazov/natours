@@ -1,6 +1,7 @@
 const Tour = require('../model/tour-model');
 const APIFeatures = require('../utils/api-features');
 const catchAsync = require('../utils/catch-async');
+const AppError = require('../utils/app-error');
 
 exports.aliasTopTours = async (req, res, next) => {
     req.query.limit = '5';
@@ -27,6 +28,9 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 
 exports.getTour = catchAsync(async (req, res, next) => {
     const tour = await Tour.findById(req.params.id);
+
+    // Must have a return statement, to proceed to the next middleware.
+    if (!tour) return next(new AppError('Invalid ID', 404));
     
     res.status(200).json({
         status: 'success',
@@ -49,6 +53,8 @@ exports.updateTour = catchAsync(async (req, res, next) => {
         runValidators: true
     });
 
+    if (!tour) return next(new AppError('Invalid ID', 404));
+
     res.status(200).json({
         status: 'success',
         data: { tour }
@@ -56,7 +62,9 @@ exports.updateTour = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteTour = catchAsync(async (req, res, next) => {
-    await Tour.findByIdAndDelete(req.params.id);
+    const tour = await Tour.findByIdAndDelete(req.params.id);
+
+    if (!tour) return next(new AppError('Invalid ID', 404));
 
     res.status(204).json({
         status: 'success',
