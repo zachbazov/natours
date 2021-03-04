@@ -60,7 +60,7 @@ const tourSchema = new mongoose.Schema({
 // Wont be persisted in the data, it's gonna be presented as soon as we get the data.
 tourSchema.virtual('durationWeeks').get(function() {
     return this.duration / 7;
-})
+});
 
 const Tour = mongoose.model('Tour', tourSchema);
 
