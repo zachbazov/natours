@@ -91,6 +91,15 @@ tourSchema.post(/^find/, function(docs, next) {
     next();
 });
 
+// Aggregation Middlewares
+tourSchema.pre('aggregate', function(next) {
+    // this points to the current aggregation.
+    // Removing from the output all the tours with the secret parameter set to false.
+    this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+    //console.log(this.pipeline());
+    next();
+});
+
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
