@@ -25,11 +25,7 @@ mongoose
     })
     .then(() => console.log('DATABASE: CONNECTED'));
 
-const server = app.listen(process.env.PORT, 
+app.listen(process.env.PORT, 
     () => console.log(`PORT: ${process.env.PORT}\nENVIRONMENT: ${app.get('env')}`)
 );
 
-process.on('unhandledRejection', (err) => {
-    console.log(`[unhandledRejection] [${err.name}]`, err.message);
-    server.close(() => process.exit(1));
-});
