@@ -52,7 +52,7 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 // Route Protection
-// Unauthorised users won't be able to access certain routes.
+// Checks if the user is logged in.
 exports.protect = catchAsync(async (req, res, next) => {
     let token;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer'))
