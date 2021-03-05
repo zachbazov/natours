@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const AppError = require('./utils/app-error');
 const errorController = require('./controller/error-controller');
@@ -8,6 +9,13 @@ const tourRouter = require('./route/tour-routes');
 const userRouter = require('./route/user-routes');
 
 const app = express();
+
+// Authentication Security HTTP Headers
+// An Express app should always use the helmet package,
+// due to lack of usage of security built-in measures.
+// Best to use this helmet function early in the middleware stack,
+// to ensure theses headers are sure to be set.
+app.use(helmet());
 
 // Non-development-dependency - development logging middleware.
 if (process.env.NODE_ENV === 'development')
@@ -27,8 +35,11 @@ const limiter = rateLimit({
 // '/api' - applys to /api routes.
 app.use('/api', limiter);
 
+// Body Parsers
+// Reads data from the body into req.body.
 // A middleware that exposes data to the request object.
-app.use(express.json());
+// .json() accepts an options object.
+app.use(express.json({ limit: '10kb' }));
 
 // Serving static files that are not defined, makes it accessible to the browser.
 app.use(express.static(`${__dirname}/public`));
