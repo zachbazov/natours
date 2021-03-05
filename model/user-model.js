@@ -40,7 +40,12 @@ const userSchema = new mongoose.Schema({
     },
     passwordChangedAt: Date,
     passwordResetToken: String,
-    passwordResetExpires: Date
+    passwordResetExpires: Date,
+    active: {
+        type: Boolean,
+        default: true,
+        select: false
+    }
 });
 
 // Password Encryption
@@ -66,6 +71,13 @@ userSchema.pre('save', function (next) {
     // Puting this value with one second in the past,
     // will ensure that the token is always created after the password has been changed.
     this.passwordChangedAt = Date.now() - 1000;
+    next();
+});
+
+// Query middleware for any query that contains find in its path.
+// Apply an active flag for the users, those with false will not be projected.
+userSchema.pre(/^find/, function(next) {
+    this.find({ active: true });
     next();
 });
 

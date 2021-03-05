@@ -24,6 +24,9 @@ router
     .patch('/update-personal-info', authController.protect, userController.updatePersonalInfo);
 
 router
+    .delete('/deactivate', authController.protect, userController.deactivate);
+
+router
     .route('/')
     .get(userController.getAllUsers)
     .post(userController.createUser);
