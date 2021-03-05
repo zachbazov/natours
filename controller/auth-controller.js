@@ -12,6 +12,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     // Instead of using .create(req.body), which is a serious security flow.
     // We'll pass in the necessary data only.
     const newUser = await User.create({
+        role: req.body.role,
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
@@ -52,7 +53,7 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 // Route Protection
-// Unauthorised users won't be able to access certain routes.
+// Checks if the user is logged in.
 exports.protect = catchAsync(async (req, res, next) => {
     let token;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer'))
@@ -79,3 +80,13 @@ exports.protect = catchAsync(async (req, res, next) => {
     // Grant access to next route.
     next();
 });
+
+// User Roles/Permissions
+// Unauthorised users won't be able to access certain routes.
+exports.restrictTo = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role))
+            return next(new AppError('You do not have permission to perform this action.', 403)) // 403 - forbidden.
+        next();
+    }
+}

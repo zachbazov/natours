@@ -3,6 +3,11 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+    role: {
+        type: String,
+        enum: ['user', 'tour-guide', 'lead-guide', 'admin'],
+        default: 'user'
+    },
     name: {
         type: String,
         required: [true, 'A name is required.']
