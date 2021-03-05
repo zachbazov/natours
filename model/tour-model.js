@@ -73,7 +73,31 @@ const tourSchema = new mongoose.Schema({
     secretTour: {
         type: Boolean,
         default: false
-    }
+    },
+    // Geospatial Data - GeoJSON
+    // In order to specify geospatial data with mongodb, we need to create a new object,
+    // that object needs to have at least two field names. e.g. type & coordinates.
+    startLocation: {
+        type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String
+    },
+    locations: [{
+        type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number
+    }]
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
