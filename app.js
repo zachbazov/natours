@@ -2,6 +2,8 @@ const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 const AppError = require('./utils/app-error');
 const errorController = require('./controller/error-controller');
@@ -40,6 +42,21 @@ app.use('/api', limiter);
 // A middleware that exposes data to the request object.
 // .json() accepts an options object.
 app.use(express.json({ limit: '10kb' }));
+
+// Express Security - Data Sanitization.
+// Cleans all the data that comes to the application from malicious code.
+// Data sanitization against NoSQL query injection,
+// e.g { "email": { "$gt": "" } }, this injection will expose all the users, which is bad practice.
+// To avoid this, we use a sanitizer,
+// which looks at the req.body, req.query and req.params,
+// and will filter out all the special signs or dots.
+app.use(mongoSanitize());
+// Data sanitization against XSS.
+// Will clean any user input from malicious HTML code.
+// Used for cases that attackers would try to insert
+// some malicious HTML with JS code attached to it, to make damage.
+// To avoid this, xss() is converting these HTML symbols.
+app.use(xss());
 
 // Serving static files that are not defined, makes it accessible to the browser.
 app.use(express.static(`${__dirname}/public`));
