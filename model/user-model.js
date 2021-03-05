@@ -67,7 +67,6 @@ userSchema.pre('save', function (next) {
     // If we didn't modified the password,
     // then we do not want to manipulate passwordChangedAt.
     if (!this.isModified('password') || this.isNew) return next();
-
     // Puting this value with one second in the past,
     // will ensure that the token is always created after the password has been changed.
     this.passwordChangedAt = Date.now() - 1000;
