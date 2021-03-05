@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 
+const User = require('../model/user-model');
+
 const tourSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -83,6 +85,7 @@ const tourSchema = new mongoose.Schema({
             default: 'Point',
             enum: ['Point']
         },
+        // FIXME: cords[lng,lat] !!! 
         coordinates: [Number],
         address: String,
         description: String
@@ -97,7 +100,9 @@ const tourSchema = new mongoose.Schema({
         address: String,
         description: String,
         day: Number
-    }]
+    }],
+    // Modeling Tour Guides - Embedding.
+    guides: Array
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -113,6 +118,17 @@ tourSchema.virtual('durationWeeks').get(function() {
 // runs before .save() and .create(), have access to the document being saved.
 tourSchema.pre('save', function(next) {
     this.slug = slugify(this.name, { lowercase: true });
+    next();
+});
+
+// Modeling Tour Guides - Embedding / Denormalized.
+tourSchema.pre('save', async function(next) {
+    // this.guides - An array of all the relevant tour-guide role user IDs.
+    const guidesPromises = this.guides.map(async id => await User.findById(id));
+    // Promise.all() - The result of looping in this.guides will return a promise for each looped object.
+    // guidesPromises - An array of promises, based on this.guides.
+    // Finally, awaits the result for all promises.
+    this.guides = await Promise.all(guidesPromises);
     next();
 });
 
