@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
     role: {
@@ -37,7 +38,9 @@ const userSchema = new mongoose.Schema({
             message: 'Passwords do not match.'
         }
     },
-    passwordChangedAt: Date
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date
 });
 
 // Password Encryption
@@ -51,6 +54,18 @@ userSchema.pre('save', async function(next) {
     this.password = await bcrypt.hash(this.password, 12);
     // No longer need to persist this field.
     this.passwordConfirm = undefined;
+    next();
+});
+
+// Reset Functionallity
+userSchema.pre('save', function (next) {
+    // If we didn't modified the password,
+    // then we do not want to manipulate passwordChangedAt.
+    if (!this.isModified('password') || this.isNew) return next();
+
+    // Puting this value with one second in the past,
+    // will ensure that the token is always created after the password has been changed.
+    this.passwordChangedAt = Date.now() - 1000;
     next();
 });
 
@@ -72,6 +87,17 @@ userSchema.methods.isPasswordChangedAfter = function(JWTTimestamp) {
     }
     // User hasn't changed his password after token issued.
     return false;
+}
+
+// Reset Functionallity
+userSchema.methods.createPasswordResetToken = function() {
+    // This token is what we gonna send to the user.
+    // It's a reset password that the user can use to create a new real password.
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes - 60 seconds - 1sec = 10mins.
+    console.log({resetToken}, this.passwordResetToken);
+    return resetToken;
 }
 
 const User = mongoose.model('User', userSchema);
