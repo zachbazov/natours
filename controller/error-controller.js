@@ -16,6 +16,10 @@ const handleValidationErrorDb = err => {
     return new AppError(message, 400);
 }
 
+const handleJwtError = () => new AppError('Invalid token, login to gain access.', 401);
+
+const handleJwtExpiredError = () => new AppError('Your token has expired, login to gain access.', 401);
+
 const sendErrorDev = (err, res) => {
     res.status(err.statusCode).json({
         status: err.status,
@@ -58,6 +62,8 @@ module.exports = (err, req, res, next) => {
         if (error.name === 'CastError') error = handleCastErrorDb(error);
         if (error.name === 'MongoError' && error.code === 11000) error = handleDuplicateFieldsDb(error);
         if (error.name === 'ValidationError') error = handleValidationErrorDb(error);
+        if (error.name === 'JsonWebTokenError') error = handleJwtError();
+        if (error.name === 'TokenExpiredError') error = handleJwtExpiredError();
         sendErrorProd(error, res);
     }
 }

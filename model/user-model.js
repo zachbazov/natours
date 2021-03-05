@@ -31,7 +31,8 @@ const userSchema = new mongoose.Schema({
             validator: function(el) { return el === this.password; },
             message: 'Passwords do not match.'
         }
-    }
+    },
+    passwordChangedAt: Date
 });
 
 // Password Encryption
@@ -51,8 +52,21 @@ userSchema.pre('save', async function(next) {
 // Encrypted Password Comparison.
 // candidatePassword - isn't hashed, it's actually the original password.
 // bcrypt will encrypt it and then compare both values.
-userSchema.methods.isCorrectPassword = async function(candidatePassword, password) {
+userSchema.methods.isPasswordCorrect = async function(candidatePassword, password) {
     return await bcrypt.compare(candidatePassword, password);
+};
+
+// JWT Authentication Verification
+// Checks if the user has changed his password after the token was issued.
+// JWTTimestamp - the timestamp when the token was issued.
+userSchema.methods.isPasswordChangedAfter = function(JWTTimestamp) {
+    // If there is not passwordChangedAt, means that the user hasn't changed his password.
+    if (this.passwordChangedAt) {
+        const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+        return JWTTimestamp < changedTimestamp;
+    }
+    // User hasn't changed his password after token issued.
+    return false;
 }
 
 const User = mongoose.model('User', userSchema);
