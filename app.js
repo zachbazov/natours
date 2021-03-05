@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const AppError = require('./utils/app-error');
 const errorController = require('./controller/error-controller');
@@ -11,6 +12,20 @@ const app = express();
 // Non-development-dependency - development logging middleware.
 if (process.env.NODE_ENV === 'development')
     app.use(morgan('dev'));
+
+// Authentication Rate Limiting
+// Count the number of requests, coming for an ip,
+// then, when there are too many requests, blocks them.
+const limiter = rateLimit({
+    // max - requests number before limitation.
+    max: 20,
+    // windowMs - blocking time.
+    windowMs: 60 * 60 * 1000,
+    // message - as blocking occurs, display a message.
+    message: 'Too many requests from this IP, please try again in an hour.'
+});
+// '/api' - applys to /api routes.
+app.use('/api', limiter);
 
 // A middleware that exposes data to the request object.
 app.use(express.json());
