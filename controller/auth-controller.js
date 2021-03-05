@@ -7,12 +7,35 @@ const AppError = require('../utils/app-error');
 const Messenger = require('../utils/messenger');
 
 const signToken = id => {
-    return jwt.sign({ id: id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+    return jwt.sign(
+        {id: id },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
 }
 
 const createSendToken = (user, statusCode, res) => {
     const token = signToken(user._id);
-    res.status(200).json({
+
+    // Authentication JWT Cookie
+    // A browser automatically stores a cookie that it recieves,
+    // and sends it back along with all future requests to the same server.
+
+    // Cookie options object.
+    const mOptions = {
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+        // Recieves the cookie, stores and sends it along with every request.
+        httpOnly: true
+    };
+
+    if (process.env.NODE_ENV === 'production') mOptions.secure = true;
+
+    res.cookie('jwt', token, mOptions);
+
+    // Removes the password from the signup output.
+    user.password = undefined;
+
+    res.status(statusCode).json({
         status: 'success',
         token,
         data: { user }
