@@ -73,8 +73,10 @@ userSchema.pre('save', function (next) {
     next();
 });
 
+// Authentication De-Activation - Delete.
+// In case we want to delete user, we should deactivate the user instead of delete from data.
 // Query middleware for any query that contains find in its path.
-// Apply an active flag for the users, those with false will not be projected.
+// Applys an active flag for the user, those with false will not be projected.
 userSchema.pre(/^find/, function(next) {
     this.find({ active: true });
     next();
