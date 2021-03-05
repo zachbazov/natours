@@ -10,6 +10,15 @@ const signToken = id => {
     return jwt.sign({ id: id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 }
 
+const createSendToken = (user, statusCode, res) => {
+    const token = signToken(user._id);
+    res.status(200).json({
+        status: 'success',
+        token,
+        data: { user }
+    });
+}
+
 exports.signup = catchAsync(async (req, res, next) => {
     // Instead of using .create(req.body), which is a serious security flow.
     // We'll pass in the necessary data only.
@@ -27,13 +36,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     // the payload is actually an object for all the data that we want to store inside of the token.
     // That payload object will be put into the jwt token.
     //jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
-    const token = signToken(newUser._id);
-
-    res.status(201).json({
-        status: 'success',
-        token,
-        data: { user: newUser }
-    });
+    createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -46,12 +49,7 @@ exports.login = catchAsync(async (req, res, next) => {
     if (!user || !(await user.isPasswordCorrect(password, user.password)))
         return next(new AppError('Invalid credentials.', 401)) // 401 - Unauthorised.
 
-    const token = signToken(user._id);
-
-    res.status(200).json({
-        status: 'success',
-        token
-    });
+    createSendToken(user, 200, res);
 });
 
 // Route Protection
@@ -103,7 +101,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
     // Send it back to user's email.
     const resetUrl = 
-        `${req.protocol}://${req.get('host')}api/v1/users/reset-password/${resetToken}`
+        `${req.protocol}://${req.get('host')}/api/v1/users/reset-password/${resetToken}`
     const message = 
         `Forgot your password?
         Submit a PATCH request with your new password and passwordConfirm to: ${resetUrl}
@@ -144,10 +142,22 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     user.passwordResetExpires = undefined;
     await user.save();
     // Update changedPasswordAt property for the user.
-
+    
     // Log the user in, send JWT.
-    const token = signToken(user._id);
+    createSendToken(user, 200, res);
+});
 
+exports.updatePassword = catchAsync(async (req, res, next) => {
+    const user = await User.findById(req.user.id).select('+password');
+
+    if (!(await user.isPasswordCorrect(req.body.passwordCurrent, user.password)))
+        return next(new AppError('Your current password is wrong.', 401));
+
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    await user.save();
+
+    const token = signToken(user._id);
     res.status(201).json({
         status: 'success',
         token
