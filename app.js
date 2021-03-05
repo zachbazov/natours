@@ -4,6 +4,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const AppError = require('./utils/app-error');
 const errorController = require('./controller/error-controller');
@@ -58,6 +59,21 @@ app.use(mongoSanitize());
 // To avoid this, xss() is converting these HTML symbols.
 app.use(xss());
 
+// Express Security - Prevent Parameter Pollution
+// In case of duplicate fields in the query, hpp clears up the query string.
+// Preventing from attackers to take advantage of this case.
+// whitelist - An array of properties for which we actually allow to duplicate in the query string.
+app.use(hpp({
+    whitelist: [
+        'duration',
+        'ratingsAverage',
+        'ratingsQuantity',
+        'maxGroupSize',
+        'difficulty',
+        'price'
+    ]
+}));
+
 // Serving static files that are not defined, makes it accessible to the browser.
 app.use(express.static(`${__dirname}/public`));
 
@@ -67,6 +83,7 @@ app.use((req, res, next) => {
     next();
 });
 
+// Route Mounting
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
