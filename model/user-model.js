@@ -49,29 +49,29 @@ const userSchema = new mongoose.Schema({
 });
 
 // Password Encryption
-userSchema.pre('save', async function(next) {
-    // Runs only if password was modified.
-    if (!this.isModified('password')) return next();
-    // Password Hashing
-    // We want to set our current password, basically to the encrypted version of the original password,
-    // with the cost of 12, not to make it too easy to brake the password,
-    // but also not to make the application to take too long before encrypting the password.
-    this.password = await bcrypt.hash(this.password, 10);
-    // No longer need to persist this field.
-    this.passwordConfirm = undefined;
-    next();
-});
+// userSchema.pre('save', async function(next) {
+//     // Runs only if password was modified.
+//     if (!this.isModified('password')) return next();
+//     // Password Hashing
+//     // We want to set our current password, basically to the encrypted version of the original password,
+//     // with the cost of 12, not to make it too easy to brake the password,
+//     // but also not to make the application to take too long before encrypting the password.
+//     this.password = await bcrypt.hash(this.password, 10);
+//     // No longer need to persist this field.
+//     this.passwordConfirm = undefined;
+//     next();
+// });
 
-// Reset Functionallity
-userSchema.pre('save', function (next) {
-    // If we didn't modified the password,
-    // then we do not want to manipulate passwordChangedAt.
-    if (!this.isModified('password') || this.isNew) return next();
-    // Puting this value with one second in the past,
-    // will ensure that the token is always created after the password has been changed.
-    this.passwordChangedAt = Date.now() - 1000;
-    next();
-});
+// // Reset Functionallity
+// userSchema.pre('save', function (next) {
+//     // If we didn't modified the password,
+//     // then we do not want to manipulate passwordChangedAt.
+//     if (!this.isModified('password') || this.isNew) return next();
+//     // Puting this value with one second in the past,
+//     // will ensure that the token is always created after the password has been changed.
+//     this.passwordChangedAt = Date.now() - 1000;
+//     next();
+// });
 
 // Authentication De-Activation - Delete.
 // In case we want to delete user, we should deactivate the user instead of delete from data.

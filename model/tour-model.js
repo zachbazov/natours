@@ -79,35 +79,11 @@ const tourSchema = new mongoose.Schema({
     // Geospatial Data - GeoJSON
     // In order to specify geospatial data with mongodb, we need to create a new object,
     // that object needs to have at least two field names. e.g. type & coordinates.
-    startLocation: {
-        type: {
-            type: String,
-            default: 'Point',
-            enum: ['Point']
-        },
-        // FIXME: cords[lng,lat] !!! 
-        coordinates: [Number],
-        address: String,
-        description: String
-    },
-    locations: [{
-        type: {
-            type: String,
-            default: 'Point',
-            enum: ['Point']
-        },
-        coordinates: [Number],
-        address: String,
-        description: String,
-        day: Number
-    }],
+    
     // Modeling Tour Guides - Embedding.
     //guides: Array
     // Modeling Tour Guides - Referencing.
-    guides: [{
-        type: mongoose.Schema.ObjectId,
-        ref: 'User'
-    }]
+    
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
