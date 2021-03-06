@@ -85,27 +85,21 @@ const tourSchema = new mongoose.Schema({
             default: 'Point',
             enum: ['Point']
         },
+        coordinates: [Number]
+    },
+    locations: [{
+        type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point']
+        },
         coordinates: [Number],
         address: String,
-        description: String
-    },
-    locations: [
-        {
-            type: {
-                type: String,
-                default: 'Point',
-                enum: ['Point']
-            },
-            coordinates: [Number],
-            address: String,
-            description: String,
-            day: Number
-        }
-    ]
-    // Modeling Tour Guides - Embedding.
-    //guides: Array
-    // Modeling Tour Guides - Referencing.
-    
+        description: String,
+        day: Number
+    }],
+    // Embedding / Denormalized - Modeling Tour Guides.
+    guides: Array
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -125,22 +119,13 @@ tourSchema.pre('save', function(next) {
 });
 
 // Modeling Tour Guides - Embedding / Denormalized.
-// tourSchema.pre('save', async function(next) {
-//     // this.guides - An array of all the relevant tour-guide role user IDs.
-//     const guidesPromises = this.guides.map(async id => await User.findById(id));
-//     // Promise.all() - The result of looping in this.guides will return a promise for each looped object.
-//     // guidesPromises - An array of promises, based on this.guides.
-//     // Finally, awaits the result for all promises.
-//     this.guides = await Promise.all(guidesPromises);
-//     next();
-// });
-
-// regular expression, that would work to everything that starts with find.
-tourSchema.pre(/^find/, function (next) {
-    this.populate({
-        path: 'guides',
-        select: '-__v -passwordChangedAt'
-    });
+// this.guides - An array of all the relevant tour-guide role user IDs.
+// Promise.all() - The result of looping in this.guides will return a promise for each looped object.
+// guidesPromises - An array of promises, based on this.guides.
+// Finally, awaits the result for all promises.
+tourSchema.pre('save', async function(next) {
+    const guidesPromises = this.guides.map(id => User.findById(id));
+    this.guides = await Promise.all(guidesPromises);
     next();
 });
 
