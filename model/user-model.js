@@ -56,7 +56,7 @@ userSchema.pre('save', async function(next) {
     // We want to set our current password, basically to the encrypted version of the original password,
     // with the cost of 12, not to make it too easy to brake the password,
     // but also not to make the application to take too long before encrypting the password.
-    this.password = await bcrypt.hash(this.password, 12);
+    this.password = await bcrypt.hash(this.password, 10);
     // No longer need to persist this field.
     this.passwordConfirm = undefined;
     next();

@@ -46,12 +46,10 @@ exports.signup = catchAsync(async (req, res, next) => {
     // Instead of using .create(req.body), which is a serious security flow.
     // We'll pass in the necessary data only.
     const newUser = await User.create({
-        role: req.body.role,
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
-        passwordConfirm: req.body.passwordConfirm,
-        passwordChangedAt: req.body.passwordChangedAt
+        passwordConfirm: req.body.passwordConfirm
     });
 
     // Remember: In MongoDB, an id argument specified as _id.
@@ -69,6 +67,7 @@ exports.login = catchAsync(async (req, res, next) => {
     
     const user = await User.findOne({ email }).select('+password');
 
+    console.log(await user.isPasswordCorrect(password, user.password));
     if (!user || !(await user.isPasswordCorrect(password, user.password)))
         return next(new AppError('Invalid credentials.', 401)) // 401 - Unauthorised.
 

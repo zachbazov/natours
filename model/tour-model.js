@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 
-const User = require('../model/user-model');
+const User = require('./user-model');
 
 const tourSchema = new mongoose.Schema({
     name: {
@@ -102,11 +102,18 @@ const tourSchema = new mongoose.Schema({
         day: Number
     }],
     // Modeling Tour Guides - Embedding.
-    guides: Array
+    //guides: Array
+    // Modeling Tour Guides - Referencing.
+    guides: [{
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+    }]
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
 });
+
+tourSchema.index({ startLocation: '2dsphere' });
 
 // Virtual Properties
 // Wont be persisted in the data, it's gonna be presented as soon as we get the data.
@@ -122,13 +129,22 @@ tourSchema.pre('save', function(next) {
 });
 
 // Modeling Tour Guides - Embedding / Denormalized.
-tourSchema.pre('save', async function(next) {
-    // this.guides - An array of all the relevant tour-guide role user IDs.
-    const guidesPromises = this.guides.map(async id => await User.findById(id));
-    // Promise.all() - The result of looping in this.guides will return a promise for each looped object.
-    // guidesPromises - An array of promises, based on this.guides.
-    // Finally, awaits the result for all promises.
-    this.guides = await Promise.all(guidesPromises);
+// tourSchema.pre('save', async function(next) {
+//     // this.guides - An array of all the relevant tour-guide role user IDs.
+//     const guidesPromises = this.guides.map(async id => await User.findById(id));
+//     // Promise.all() - The result of looping in this.guides will return a promise for each looped object.
+//     // guidesPromises - An array of promises, based on this.guides.
+//     // Finally, awaits the result for all promises.
+//     this.guides = await Promise.all(guidesPromises);
+//     next();
+// });
+
+// regular expression, that would work to everything that starts with find.
+tourSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'guides',
+        select: '-__v -passwordChangedAt'
+    });
     next();
 });
 

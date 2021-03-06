@@ -27,7 +27,9 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 exports.getTour = catchAsync(async (req, res, next) => {
-    const tour = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id).populate({
+        path: 'guides',
+    });
 
     // Must have a return statement, to proceed to the next middleware.
     if (!tour) return next(new AppError('Invalid ID', 404));
