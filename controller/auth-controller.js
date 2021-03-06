@@ -8,7 +8,7 @@ const Messenger = require('../utils/messenger');
 
 const signToken = id => {
     return jwt.sign(
-        {id: id },
+        { id: id },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN }
     );
