@@ -122,6 +122,20 @@ const tourSchema = new mongoose.Schema({
     toObject: { virtuals: true }
 });
 
+// Indexes - Performance Gain.
+// An ordered list of all the IDs, for example,
+// that gets stored outside of the collection.
+// Whenever documents are queried by the ID MongoDB will search
+// that ordered index instead of searching through the whole collection,
+// and look at all the documents one by one.
+// 1 / -1 - Ascending/Descending order.
+//tourSchema.index({ price: 1 });
+// Queries for a tour by a slug.
+tourSchema.index({ slug: 1 });
+
+// Compound Index
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+
 // Virtual Properties.
 // Wont be persisted in the data, it's gonna be presented as soon as we get the data.
 tourSchema.virtual('durationWeeks').get(function() {
