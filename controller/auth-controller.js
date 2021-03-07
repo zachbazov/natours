@@ -66,7 +66,7 @@ exports.signIn = catchAsync(async (req, res, next) => {
     if (!email || !password) return next(new AppError('Please type an email and password.', 400));
     
     const user = await User.findOne({ email }).select('+password');
-    console.log(user)
+    
     if (!user || !(await user.isPasswordCorrect(password, user.password)))
         return next(new AppError('Invalid credentials.', 401)) // 401 - Unauthorised.
 
@@ -107,7 +107,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 // 403 - forbidden.
 exports.restrictTo = (...roles) => {
     return (req, res, next) => {
-        console.log(roles, req.user.role, req.user);
         if (!roles.includes(req.user.role))
             return next(new AppError('You do not have permission to perform this action.', 403));
         next();
