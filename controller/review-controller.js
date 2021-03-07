@@ -2,7 +2,12 @@ const Review = require('../model/review-model');
 const catchAsync = require('../utils/catch-async');
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
-    const reviews = await Review.find();
+    // If there is a tour ID, only the reviews where the tour
+    // matches the ID are going to be found.
+    let filter;
+    if (req.params.id) filter = { tour: req.params.id };
+    
+    const reviews = await Review.find(filter);
 
     res.status(200).json({
         status: 'success',
@@ -18,7 +23,7 @@ exports.createReview = catchAsync(async (req, res, next) => {
     if (!req.body.tour) req.body.tour = req.params.id;
     // If there user in the request, we define it by .protect() auth's middleware.
     if (!req.body.user) req.body.user = req.user.id;
-    
+
     const newReview = await Review.create(req.body);
 
     res.status(201).json({
