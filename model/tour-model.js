@@ -172,3 +172,8 @@ tourSchema.pre('aggregate', function(next) {
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
+
+// Populate
+// Get access to the referenced tour guides whenever we query for a certain tour.
+// The result of that would look like the data was always been embedded,
+// as in fact we know it's on a completely different collection.
