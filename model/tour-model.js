@@ -135,6 +135,11 @@ const tourSchema = new mongoose.Schema({
 // Queries for a tour by a slug.
 tourSchema.index({ slug: 1 });
 
+// Geospatial Data.
+// So for geospatial data, this index needs to be a 2D sphere index
+// if the data describes real points on the Earth like sphere.
+tourSchema.index({ startLocation: '2dsphere' });
+
 // Compound Index
 tourSchema.index({ price: 1, ratingsAverage: -1 });
 
@@ -173,13 +178,15 @@ tourSchema.pre('save', function(next) {
 //     next();
 // });
 
+// ** May conflict with Geospatial Aggregation, $match is first. **
 // Aggregation Middlewares
-tourSchema.pre('aggregate', function(next) {
-    // this points to the current aggregation.
-    // Removing from the output all the tours with the secret parameter set to false.
-    this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-    next();
-});
+// tourSchema.pre('aggregate', function(next) {
+//     // this points to the current aggregation.
+//     // Removing from the output all the tours with the secret parameter set to false.
+//     this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+//     console.log(this.pipeline());
+//     next();
+// });
 
 // Populating - Modeling Tour Guides.
 // Get access to the referenced tour guides whenever we query for a certain tour.
