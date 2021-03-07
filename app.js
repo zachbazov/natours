@@ -10,6 +10,7 @@ const AppError = require('./utils/app-error');
 const errorController = require('./controller/error-controller');
 const tourRouter = require('./route/tour-routes');
 const userRouter = require('./route/user-routes');
+const reviewRouter = require('./route/review-routes');
 
 const app = express();
 
@@ -86,6 +87,7 @@ app.use((req, res, next) => {
 // Route Mounting
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // Error Handling
 // In case a route hasn't found on the server.

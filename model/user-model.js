@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const userSchema = new mongoose.Schema({
     role: {
         type: String,
-        enum: ['user', 'tour-guide', 'lead-guide', 'admin'],
+        enum: ['user', 'lead-guide', 'guide', 'admin'],
         default: 'user'
     },
     name: {
