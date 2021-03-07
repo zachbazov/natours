@@ -67,7 +67,6 @@ exports.login = catchAsync(async (req, res, next) => {
     
     const user = await User.findOne({ email }).select('+password');
 
-    console.log(await user.isPasswordCorrect(password, user.password));
     if (!user || !(await user.isPasswordCorrect(password, user.password)))
         return next(new AppError('Invalid credentials.', 401)) // 401 - Unauthorised.
 
