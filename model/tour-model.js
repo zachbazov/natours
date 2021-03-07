@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 
+// Removed - Child Referncing
+// Referring to the user inside the model.
 const User = require('./user-model');
 
 const tourSchema = new mongoose.Schema({
@@ -98,8 +100,23 @@ const tourSchema = new mongoose.Schema({
         description: String,
         day: Number
     }],
-    // Embedding / Denormalized - Modeling Tour Guides.
-    guides: Array
+    // Modeling Tour Guides.
+    // Embedding / Denormalized.
+    //guides: Array
+
+    // Referencing / Normalized.
+    // the idea is that tours and users will always remain,
+    // completely separate entities in our database.
+    // So all we save on a certain tour document
+    // is the IDs of the users that are the tour guides
+    // for that specific tour.
+    // Then when we query the tour,
+    // we want to automatically get access to the tour guides.
+    // without them being actually saved on the tour document itself.
+    guides: [{
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+    }]
 }, {
     toJSON: { virtuals: true },
     toObject: { virtuals: true }
@@ -123,11 +140,11 @@ tourSchema.pre('save', function(next) {
 // Promise.all() - The result of looping in this.guides will return a promise for each looped object.
 // guidesPromises - An array of promises, based on this.guides.
 // Finally, awaits the result for all promises.
-tourSchema.pre('save', async function(next) {
-    const guidesPromises = this.guides.map(id => User.findById(id));
-    this.guides = await Promise.all(guidesPromises);
-    next();
-});
+// tourSchema.pre('save', async function(next) {
+//     const guidesPromises = this.guides.map(id => User.findById(id));
+//     this.guides = await Promise.all(guidesPromises);
+//     next();
+// });
 
 // Query Middlewares
 // RegEx - all the strings that starts with 'find'.
