@@ -19,7 +19,7 @@ exports.deactivate = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.getPersonalInfo = (req, res, next) => {
+exports.getUserProfile = (req, res, next) => {
     // Instead of getting the id from the query parameters,
     // get it from the current user document.
     req.params.id = req.user.id;
@@ -39,7 +39,7 @@ const filterObject = (object, ...allowedFields) => {
     return newObject;
 }
 
-exports.updatePersonalInfo = catchAsync(async (req, res, next) => {
+exports.updateUserProfile = catchAsync(async (req, res, next) => {
     if (req.body.password || req.body.passwordConfirm)
         return next(
             new AppError('This route is not for password update, please use /update-password.', 400));

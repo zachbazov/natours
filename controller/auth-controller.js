@@ -42,7 +42,7 @@ const createSendToken = (user, statusCode, res) => {
     });
 }
 
-exports.signup = catchAsync(async (req, res, next) => {
+exports.signUp = catchAsync(async (req, res, next) => {
     // Instead of using .create(req.body), which is a serious security flow.
     // We'll pass in the necessary data only.
     const newUser = await User.create({
@@ -60,7 +60,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     createSendToken(newUser, 201, res);
 });
 
-exports.login = catchAsync(async (req, res, next) => {
+exports.signIn = catchAsync(async (req, res, next) => {
     const { email, password } = req.body;
     
     if (!email || !password) return next(new AppError('Please type an email and password.', 400));

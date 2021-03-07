@@ -6,13 +6,10 @@ const authController = require('../controller/auth-controller');
 const router = express.Router();
 
 router
-    .get('/personal-info', authController.protect, userController.getPersonalInfo, userController.getUser);
+    .post('/sign-up', authController.signUp);
 
 router
-    .post('/signup', authController.signup);
-
-router
-    .post('/login', authController.login);
+    .post('/sign-in', authController.signIn);
 
 router
     .post('/forgot-password', authController.forgotPassword);
@@ -21,13 +18,22 @@ router
     .patch('/reset-password/:token', authController.resetPassword);
 
 router
-    .patch('/update-password', authController.protect, authController.updatePassword);
+    .use(authController.protect);
 
 router
-    .patch('/update-personal-info', authController.protect, userController.updatePersonalInfo);
+    .get('/user-profile', userController.getUserProfile, userController.getUser);
 
 router
-    .delete('/deactivate', authController.protect, userController.deactivate);
+    .patch('/update-password', authController.updatePassword);
+
+router
+    .patch('/update-user-profile', userController.updateUserProfile);
+
+router
+    .delete('/deactivate', userController.deactivate);
+
+router
+    .use(authController.restrictTo('admin'));
 
 router
     .route('/')
