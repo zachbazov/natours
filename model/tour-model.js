@@ -34,7 +34,9 @@ const tourSchema = new mongoose.Schema({
         type: Number,
         default: 4.5,
         min: [1, 'Rating must be above 1.0.'],
-        max: [5, 'Rating must be below 5.0.']
+        max: [5, 'Rating must be below 5.0.'],
+        // set - Setter function that will run anytime there is a change is his parent value.
+        set: val => Math.round(val * 10) / 10 // 4.666666 -> 4.6666 -> 47 -> 4.7
     },
     ratingsQuantity: {
         type: Number,
@@ -122,6 +124,25 @@ const tourSchema = new mongoose.Schema({
     toObject: { virtuals: true }
 });
 
+// Indexes - Performance Gain.
+// An ordered list of all the IDs, for example,
+// that gets stored outside of the collection.
+// Whenever documents are queried by the ID MongoDB will search
+// that ordered index instead of searching through the whole collection,
+// and look at all the documents one by one.
+// 1 / -1 - Ascending/Descending order.
+//tourSchema.index({ price: 1 });
+// Queries for a tour by a slug.
+tourSchema.index({ slug: 1 });
+
+// Geospatial Data.
+// So for geospatial data, this index needs to be a 2D sphere index
+// if the data describes real points on the Earth like sphere.
+tourSchema.index({ startLocation: '2dsphere' });
+
+// Compound Index
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+
 // Virtual Properties.
 // Wont be persisted in the data, it's gonna be presented as soon as we get the data.
 tourSchema.virtual('durationWeeks').get(function() {
@@ -157,13 +178,15 @@ tourSchema.pre('save', function(next) {
 //     next();
 // });
 
+// ** May conflict with Geospatial Aggregation, $match is first. **
 // Aggregation Middlewares
-tourSchema.pre('aggregate', function(next) {
-    // this points to the current aggregation.
-    // Removing from the output all the tours with the secret parameter set to false.
-    this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-    next();
-});
+// tourSchema.pre('aggregate', function(next) {
+//     // this points to the current aggregation.
+//     // Removing from the output all the tours with the secret parameter set to false.
+//     this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+//     console.log(this.pipeline());
+//     next();
+// });
 
 // Populating - Modeling Tour Guides.
 // Get access to the referenced tour guides whenever we query for a certain tour.

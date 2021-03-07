@@ -1,6 +1,7 @@
 const Tour = require('../model/tour-model');
 const catchAsync = require('../utils/catch-async');
 const controller = require('./generic-controller');
+const AppError = require('../utils/app-error');
 
 exports.getAllTours = controller.getAll(Tour);
 
@@ -71,6 +72,63 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     res.status(200).json({
         status: 'success',
         data: { plan }
+    });
+});
+
+// Geospatial Data.
+exports.getToursWithin = catchAsync(async (req, res, next) => {
+    const { distance, lnglat, unit } = req.params;
+    const [lat, lng] = lnglat.split(',');
+    const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+    if (!lng || !lat) return next(new AppError('Format of latitude,longitude is required.', 400));  
+    // startLocation - Holds the geospatial data of a certain geometry.
+    // $geoWithin - Finds documents within a certain geometry, creates a sphere of
+    // the specified location within a specified radius.
+    // $centerSphere - Takes in an array of the coordinates and of the radius.
+    // radius - The distance that we want to have as the radius, but converted
+    // to a special unit called radians.
+    // To get the radians, we need to divide our distance by the radius of the earth.
+    const tours = await Tour.find(
+        { startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } } }
+    );
+    res.status(200).json({
+        status: 'success',
+        results: tours.length,
+        data: { data: tours }
+    });
+});
+
+// Geospatial Aggregation.
+exports.getDistances = catchAsync(async (req, res, next) => {
+    const { latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(',');
+    const multiplier = unit === 'mi' ? 0.000621371 : 0.001; // miles : kilometers.
+    if (!lng || !lat) return next(new AppError('Format of latitude,longitude is required.', 400));
+    const distances = await Tour.aggregate([
+        {
+            // $geoNear - Will automatically use that index in order to perform the calculation.
+            // Always needs to be the first stage.
+            $geoNear: {
+                near: {
+                    type: 'Point',
+                    coordinates: [lng * 1, lat * 1]
+                },
+                // distanceField - name of the field that will be created,
+                // and where all the calculated distances will be stored.
+                distanceField: 'distance',
+                distanceMultiplier: multiplier
+            }
+        }, {
+            // Gets rid of all the other data except those specified.
+            $project: {
+                distance: 1,
+                name: 1
+            }
+        }
+    ]);
+    res.status(200).json({
+        status: 'success',
+        data: { data: distances }
     });
 });
 
