@@ -6,6 +6,9 @@ const authController = require('../controller/auth-controller');
 const router = express.Router();
 
 router
+    .get('/personal-info', authController.protect, userController.getPersonalInfo, userController.getUser);
+
+router
     .post('/signup', authController.signup);
 
 router
@@ -28,8 +31,7 @@ router
 
 router
     .route('/')
-    .get(userController.getAllUsers)
-    .post(userController.createUser);
+    .get(userController.getAllUsers);
 
 router
     .route('/:id')
