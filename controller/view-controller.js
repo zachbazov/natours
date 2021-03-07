@@ -1,18 +1,13 @@
-// exports.get = (req, res) => {
-//     // In order to now pass data into this template,
-//     // all we need to do is to define an object in render().
-//     res.status(200).render('base', {
-//         // These passed variables called locals in the pug template.
-//         tour: 'The Forest Hiker',
-//         user: 'Zach'
-//     });
-// };
+const catchAsync = require('../utils/catch-async');
+const Tour = require('../model/tour-model');
 
-exports.getOverview = (req, res) => {
+exports.getOverview = catchAsync(async (req, res, next) => {
+    const tours = await Tour.find();
     res.status(200).render('overview', {
-        title: 'All tours'
+        title: 'All tours',
+        tours
     });
-};
+});
 
 
 exports.getTour = (req, res) => {

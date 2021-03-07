@@ -89,7 +89,9 @@ const tourSchema = new mongoose.Schema({
             default: 'Point',
             enum: ['Point']
         },
-        coordinates: [Number]
+        coordinates: [Number],
+        address: String,
+        description: String
     },
     locations: [{
         type: {
@@ -163,7 +165,7 @@ tourSchema.virtual('reviews', {
 // Document Middlewares.
 // Runs before .save() and .create(), have access to the document being saved.
 tourSchema.pre('save', function(next) {
-    this.slug = slugify(this.name, { lowercase: true });
+    this.slug = slugify(this.name, { lower: true });
     next();
 });
 
