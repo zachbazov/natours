@@ -37,10 +37,14 @@ const reviewSchema = new mongoose.Schema({
 // Parent Referencing - Populating Reviews.
 // Chainned populating for accessing both user and tour data.
 reviewSchema.pre(/^find/, function(next) {
+    // this.populate({
+    //     path: 'tour',
+    //     select: 'name -guides'
+    // }).populate({
+    //     path: 'user',
+    //     select: 'name photo'
+    // });
     this.populate({
-        path: 'tour',
-        select: 'name -guides'
-    }).populate({
         path: 'user',
         select: 'name photo'
     });

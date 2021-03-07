@@ -122,14 +122,25 @@ const tourSchema = new mongoose.Schema({
     toObject: { virtuals: true }
 });
 
-// Virtual Properties
+// Virtual Properties.
 // Wont be persisted in the data, it's gonna be presented as soon as we get the data.
 tourSchema.virtual('durationWeeks').get(function() {
     return this.duration / 7;
 });
 
-// Document Middlewares
-// runs before .save() and .create(), have access to the document being saved.
+// Virtual Populate.
+tourSchema.virtual('reviews', {
+    ref: 'Review',
+    // foreignField - This is the name of the field in the other model.
+    // So in the Review model in this case,
+    // where the reference to the current model is stored.
+    foreignField: 'tour',
+    // localField - The ID is actually stored here in this current Tour model.
+    localField: '_id'
+});
+
+// Document Middlewares.
+// Runs before .save() and .create(), have access to the document being saved.
 tourSchema.pre('save', function(next) {
     this.slug = slugify(this.name, { lowercase: true });
     next();
@@ -145,21 +156,6 @@ tourSchema.pre('save', function(next) {
 //     this.guides = await Promise.all(guidesPromises);
 //     next();
 // });
-
-// Query Middlewares
-// RegEx - all the strings that starts with 'find'.
-tourSchema.pre(/^find/, function(next) {
-    this.find({ secretTour: { $ne: true } });
-    // Used for measuring the execution time.
-    this.start = Date.now();
-    next();
-});
-
-// Measures the execution time of a query.
-tourSchema.post(/^find/, function(docs, next) {
-    console.log(`Query executed in ${Date.now() - this.start} ms.`);
-    next();
-});
 
 // Aggregation Middlewares
 tourSchema.pre('aggregate', function(next) {
@@ -179,6 +175,21 @@ tourSchema.pre(/^find/, function(next) {
         path: 'guides',
         select: '-__v -passwordChangedAt'
     });
+    next();
+});
+
+// Query Middlewares
+// RegEx - all the strings that starts with 'find'.
+tourSchema.pre(/^find/, function(next) {
+    this.find({ secretTour: { $ne: true } });
+    // Used for measuring the execution time.
+    this.start = Date.now();
+    next();
+});
+
+// Measures the execution time of a query.
+tourSchema.post(/^find/, function(docs, next) {
+    console.log(`Query executed in ${Date.now() - this.start} ms.`);
     next();
 });
 
