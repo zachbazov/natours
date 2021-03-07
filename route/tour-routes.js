@@ -2,9 +2,13 @@ const express = require('express');
 
 const tourController = require('../controller/tour-controller');
 const authController = require('../controller/auth-controller');
-const reviewController = require('../controller/review-controller');
+const reviewRouter = require('../route/review-routes');
 
 const router = express.Router();
+
+// Merge Params.
+// /:id - A parameter that we'll granting access to the specified router.
+router.use('/:id/reviews', reviewRouter);
 
 router
     .route('/top-five-cheap')
@@ -30,13 +34,14 @@ router
         authController.restrictTo('admin', 'lead-guide'),
         tourController.deleteTour);
 
+// Removed - Refactored due to a Merge Param setup.
 // Nested Routes.
 // Mounting user's reviews to tours based on tour ID.
-router
-    .route('/:id/reviews')
-    .post(
-        authController.protect,
-        authController.restrictTo('user'),
-        reviewController.createReview);
+// router
+//     .route('/:id/reviews')
+//     .post(
+//         authController.protect,
+//         authController.restrictTo('user'),
+//         reviewController.createReview);
 
 module.exports = router;
