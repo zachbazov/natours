@@ -13,4 +13,6 @@ router.get('/sign-in', authController.isSignedIn, viewController.getSignForm);
 
 router.get('/account', authController.protect, viewController.getAccount);
 
+router.post('/submit-user-data', authController.protect, viewController.getUserData);
+
 module.exports = router;

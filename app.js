@@ -26,6 +26,10 @@ Defines where these views are actually located in our file system.
 So our pug templates are actually called views in Express */
 app.set('views', path.join(__dirname, 'views'));
 
+// Parses Data from URL Encoded Form.
+// extended - Ability to send complex data.
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
 // Serving static files that are not defined, makes it accessible to the browser.
 //app.use(express.static(`${__dirname}/public`));
 app.use(express.static(path.join(__dirname, 'public')));
