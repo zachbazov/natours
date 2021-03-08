@@ -30,3 +30,9 @@ exports.getSignForm = (req, res) => {
         title: 'Sign In'
     });
 };
+
+exports.getAccount = (req, res) => {
+    res.status(200).set('Content-Security-Policy', CSP_PERMISSIONS).render('account', {
+        title: 'My Account'
+    });
+}
