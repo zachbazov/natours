@@ -24,6 +24,7 @@ const createSendToken = (user, statusCode, res) => {
     // Cookie options object.
     const mOptions = {
         expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+        // httpOnly - Cookie cannot be manipulated or destroyed.
         // Recieves the cookie, stores and sends it along with every request.
         httpOnly: true
     };
@@ -73,6 +74,16 @@ exports.signIn = catchAsync(async (req, res, next) => {
     createSendToken(user, 200, res);
 });
 
+exports.signOut = (req, res) => {
+    res.cookie('jwt', 'signed-out', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+    });
+    res.status(200).json({
+        status: 'success'
+    });
+};
+
 // Route Protection
 // Checks if the user is logged in.
 exports.protect = catchAsync(async (req, res, next) => {
@@ -86,6 +97,9 @@ exports.protect = catchAsync(async (req, res, next) => {
 
     // Verification by payload, checks if the token has been manipulated by malicious third-party.
     // util - promisify, will return a promise, so we can await it and store it.
+
+    // ** Signing out means that the verification should fail, but won't return an error,
+    // instead, it skips for the next middleware **
     const decoded = await promisify(jwt.verify) (token, process.env.JWT_SECRET); // recieves a callback.
     
     // Finds the user by the id given id the decoded object.
@@ -104,34 +118,39 @@ exports.protect = catchAsync(async (req, res, next) => {
     next();
 });
 
+// ** Removed - catchAsync due to signing out jwt malformed error.
 // Similarly to protect() middleware, we simply check for authenticate user by cookies.
 // only for rendered pages, no errors.
-exports.isSignedIn = catchAsync(async (req, res, next) => {
+exports.isSignedIn = async (req, res, next) => {
      // Cookies - authenticate users based on token.
     if (req.cookies.jwt) {
-        // Verification by payload, checks if the token has been manipulated by malicious third-party.
-        // util - promisify, will return a promise, so we can await it and store it.
-        const decoded = await promisify(jwt.verify) (req.cookies.jwt, process.env.JWT_SECRET); // recieves a callback.
-        
-        // Finds the user by the id given id the decoded object.
-        // Makes sure the id is absolutely correct.
-        const user = await User.findById(decoded.id);
+        try {
+            // Verification by payload, checks if the token has been manipulated by malicious third-party.
+            // util - promisify, will return a promise, so we can await it and store it.
+            const decoded = await promisify(jwt.verify) (req.cookies.jwt, process.env.JWT_SECRET); // recieves a callback.
+            
+            // Finds the user by the id given id the decoded object.
+            // Makes sure the id is absolutely correct.
+            const user = await User.findById(decoded.id);
 
-        // Checks if the user exists, to make sure that the token is valid even if the user has deleted.
-        if (!user) return next();
+            // Checks if the user exists, to make sure that the token is valid even if the user has deleted.
+            if (!user) return next();
 
-        // Checks if the user has recently changed his password.
-         // iat - issued at.
-        if (user.isPasswordChangedAfter(decoded.iat)) return next();
+            // Checks if the user has recently changed his password.
+            // iat - issued at.
+            if (user.isPasswordChangedAfter(decoded.iat)) return next();
 
-        // This stage means for an existing user token.
-        // Makes user accessible.
-        res.locals.user = user;
-        // Grant access to next route.
-        return next();
+            // This stage means for an existing user token.
+            // Makes user accessible.
+            res.locals.user = user;
+            // Grant access to next route.
+            return next();
+        } catch (err) {
+            return next();
+        }
     }
-    return next();
-});
+    next();
+};
 
 // User Roles/Permissions
 // Unauthorised users won't be able to access certain routes.

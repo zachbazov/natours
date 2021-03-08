@@ -14,7 +14,7 @@ export const signIn = async (email, password) => {
             showAlert('success', 'Signed in successfully');
             window.setTimeout(() => {
                 location.assign('/');
-            }, 1500);
+            }, 2000);
         }
 
         console.log(res);
@@ -22,3 +22,23 @@ export const signIn = async (email, password) => {
         showAlert('error', err.response.data.message);
     }
 };
+
+export const signOut = async () => {
+    try {
+        const res = await axios({
+            method: 'GET',
+            url: 'http://127.0.0.1:3000/api/v1/users/sign-out'
+        });
+        
+        if (res.data.status === 'success') {
+            showAlert('success', 'Signing off...');
+            window.setTimeout(() => {
+                location.assign('/');
+            }, 2000);
+        }
+
+    } catch (err) {
+        console.log(err.response);
+        showAlert('error', 'Failed to sign out, try again.');
+    }
+}
