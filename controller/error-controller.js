@@ -20,33 +20,60 @@ const handleJwtError = () => new AppError('Invalid token, login to gain access.'
 
 const handleJwtExpiredError = () => new AppError('Your token has expired, login to gain access.', 401);
 
-const sendErrorDev = (err, res) => {
-    res.status(err.statusCode).json({
-        status: err.status,
-        error: err,
-        name: err.name,
-        message: err.message,
-        stack: err.stack
+const sendErrorDev = (err, req, res) => {
+    // API Handling
+    if (req.originalUrl.startsWith('/api')) {
+        return res.status(err.statusCode).json({
+            status: err.status,
+            error: err,
+            name: err.name,
+            message: err.message,
+            stack: err.stack
+        });
+    }
+    
+    // Rendered site Handling
+    console.log('[ERROR]', err);
+    return res.status(err.statusCode).render('error', {
+        title: 'Internal Error',
+        message: err.message
     });
 }
 
-const sendErrorProd = (err, res) => {
-    // Operational, trusted error, sends message to client.
-    if (err.isOperational) {
-        res.status(err.statusCode).json({
-            status: err.status,
-            message: err.message
-        });
-    } else {
-    // Programming or unknown error, doesn't leak error.
-        // 1) Log the error.
+const sendErrorProd = (err, req, res) => {
+    // API Handling.
+    if (req.originalUrl.startsWith('/api')) {
+        // Operational, trusted error, sends message to client.
+        if (err.isOperational) {
+            return res.status(err.statusCode).json({
+                status: err.status,
+                message: err.message
+            });
+        }
+
+        // Programming or unknown error, doesn't leak error.
         console.log('[ERROR]', err);
-        // 2) Send generic message.
-        res.status(500).json({
+        return res.status(500).json({
             status: 'error',
             message: 'Internal Error'
         });
     }
+
+    // Rendered site Handling.
+    // Operational, trusted error, sends message to client.
+    if (err.isOperational) {
+        return res.status(err.statusCode).render('error', {
+            title: 'Internal Error',
+            message: err.message
+        });
+    }
+
+    // Programming or unknown error, doesn't leak error.
+    console.log('[ERROR]', err);
+    return res.status(err.statusCode).render('error', {
+        title: 'Internal Error',
+        message: 'Please try again later.'
+    });
 }
 
 // Error Types Handler
@@ -55,7 +82,7 @@ module.exports = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
-    if (process.env.NODE_ENV === 'development') sendErrorDev(err, res);
+    if (process.env.NODE_ENV === 'development') sendErrorDev(err, req, res);
     else if (process.env.NODE_ENV === 'production') {
         let error = Object.assign(err);
         //console.error(error.name, error);
@@ -64,6 +91,6 @@ module.exports = (err, req, res, next) => {
         if (error.name === 'ValidationError') error = handleValidationErrorDb(error);
         if (error.name === 'JsonWebTokenError') error = handleJwtError();
         if (error.name === 'TokenExpiredError') error = handleJwtExpiredError();
-        sendErrorProd(error, res);
+        sendErrorProd(error, req, res);
     }
 }
