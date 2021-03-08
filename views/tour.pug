@@ -2,6 +2,10 @@ extends base
 
 include _review-card
 
+block append head
+    script(src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js')
+    link(href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet')
+
 mixin overviewBox(label, text, icon)
     .overview-box__detail
         svg.overview-box__icon
@@ -64,14 +68,13 @@ block content
                 img.picture-box__img(src=`/img/tours/${image}`, alt=`The Park Camper Tour ${i+1}`, class=`picture-box__img--${i+1}`)
 
     section.section-map
-        #map
+        #map(data-locations=`${JSON.stringify(tour.locations)}`)
 
     section.section-reviews
         .reviews
             each review in tour.reviews
                 +reviewCard(review)
                 
-
     section.section-cta
         .cta
             .cta__img.cta__img--logo
