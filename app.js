@@ -6,6 +6,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/app-error');
 const errorController = require('./controller/error-controller');
@@ -60,6 +61,9 @@ app.use('/api', limiter);
 // .json() accepts an options object.
 app.use(express.json({ limit: '10kb' }));
 
+// Cookie Parser.
+app.use(cookieParser());
+
 // Express Security - Data Sanitization.
 // Cleans all the data that comes to the application from malicious code.
 // Data sanitization against NoSQL query injection,
@@ -93,6 +97,8 @@ app.use(hpp({
 // Manipulates the request object, add the current time to the request.
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
+    // Logs cookie.
+    console.log(req.cookies);
     next();
 });
 

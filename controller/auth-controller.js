@@ -79,6 +79,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     let token;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer'))
         token = req.headers.authorization.split(' ')[1]; // second element.
+    else if (req.cookies.jwt) // Cookies - authenticate users based on token.
+        token = req.cookies.jwt;
     
     if (!token) return next(new AppError('You are not logged in, login to gain access.', 401));
 
@@ -100,6 +102,35 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.user = user;
     // Grant access to next route.
     next();
+});
+
+// Similarly to protect() middleware, we simply check for authenticate user by cookies.
+// only for rendered pages, no errors.
+exports.isSignedIn = catchAsync(async (req, res, next) => {
+     // Cookies - authenticate users based on token.
+    if (req.cookies.jwt) {
+        // Verification by payload, checks if the token has been manipulated by malicious third-party.
+        // util - promisify, will return a promise, so we can await it and store it.
+        const decoded = await promisify(jwt.verify) (req.cookies.jwt, process.env.JWT_SECRET); // recieves a callback.
+        
+        // Finds the user by the id given id the decoded object.
+        // Makes sure the id is absolutely correct.
+        const user = await User.findById(decoded.id);
+
+        // Checks if the user exists, to make sure that the token is valid even if the user has deleted.
+        if (!user) return next();
+
+        // Checks if the user has recently changed his password.
+         // iat - issued at.
+        if (user.isPasswordChangedAfter(decoded.iat)) return next();
+
+        // This stage means for an existing user token.
+        // Makes user accessible.
+        res.locals.user = user;
+        // Grant access to next route.
+        return next();
+    }
+    return next();
 });
 
 // User Roles/Permissions

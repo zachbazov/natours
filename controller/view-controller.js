@@ -12,7 +12,7 @@ exports.getOverview = catchAsync(async (req, res, next) => {
 });
 
 
-exports.getTour = catchAsync(async (req, res) => {
+exports.getTour = catchAsync(async (req, res, next) => {
     const tour = await Tour.findOne({ slug: req.params.slug }).populate({
         path: 'reviews',
         select: 'review rating user'
@@ -22,3 +22,9 @@ exports.getTour = catchAsync(async (req, res) => {
         tour
     });
 });
+
+exports.getSignForm = (req, res) => {
+    res.status(200).set('Content-Security-Policy', CSP_PERMISSIONS).render('sign-in', {
+        title: 'Sign In'
+    });
+};
