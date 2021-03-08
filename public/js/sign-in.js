@@ -1,6 +1,7 @@
-const form = document.querySelector('.form');
+import axios from 'axios';
+import { showAlert } from './alert';
 
-const signIn = async (email, password) => {
+export const signIn = async (email, password) => {
     console.log(email, password);
     try {
         const res = await axios({
@@ -10,7 +11,7 @@ const signIn = async (email, password) => {
         });
 
         if (res.data.status === 'success') {
-            alert('Signed in successfully');
+            showAlert('success', 'Signed in successfully');
             window.setTimeout(() => {
                 location.assign('/');
             }, 1500);
@@ -18,14 +19,6 @@ const signIn = async (email, password) => {
 
         console.log(res);
     } catch (err) {
-        alert(err.response.data.message);
+        showAlert('error', err.response.data.message);
     }
 };
-
-form.addEventListener('submit', e => {
-    // prevents the form from loding any other page.
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    signIn(email, password);
-});
