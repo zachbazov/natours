@@ -53,6 +53,10 @@ exports.signUp = catchAsync(async (req, res, next) => {
         passwordConfirm: req.body.passwordConfirm
     });
 
+    // Advanced Emails.
+    const url = `${req.protocol}://${req.get('host')}/sign-in`;
+    await new Messenger(newUser, url).sendWelcome();
+
     // Remember: In MongoDB, an id argument specified as _id.
     // In .sign(payload, jwt-secret),
     // the payload is actually an object for all the data that we want to store inside of the token.
@@ -172,21 +176,18 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     // Generate the random token.
     const resetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
-    // Send it back to user's email.
-    const resetUrl = 
-        `${req.protocol}://${req.get('host')}/api/v1/users/reset-password/${resetToken}`
-    const message = 
-        `Forgot your password?
-        Submit a PATCH request with your new password and passwordConfirm to: ${resetUrl}
-        \nTake note that this token is valid just for 10 minutes period.
-        \nIf you didn't forget your password, please ignore this message.`
 
     try {
-        await Messenger({
-            email: user.email,
-            subject: 'Your password reset token.',
-            message
-        });
+        const resetUrl = 
+        `${req.protocol}://${req.get('host')}/api/v1/users/reset-password/${resetToken}`
+        // await Messenger({
+        //     email: user.email,
+        //     subject: 'Your password reset token.',
+        //     message
+        // });
+        // Advanced Emails.
+        await new Messenger(user, resetUrl).sendPasswordReset();
+
         res.status(200).json({
             status: 'success',
             message: 'Token has been sent to email.'
