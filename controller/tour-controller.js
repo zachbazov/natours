@@ -99,38 +99,38 @@ exports.getToursWithin = catchAsync(async (req, res, next) => {
 });
 
 // Geospatial Aggregation.
-exports.getDistances = catchAsync(async (req, res, next) => {
-    const { latlng, unit } = req.params;
-    const [lat, lng] = latlng.split(',');
-    const multiplier = unit === 'mi' ? 0.000621371 : 0.001; // miles : kilometers.
-    if (!lng || !lat) return next(new AppError('Format of latitude,longitude is required.', 400));
-    const distances = await Tour.aggregate([
-        {
-            // $geoNear - Will automatically use that index in order to perform the calculation.
-            // Always needs to be the first stage.
-            $geoNear: {
-                near: {
-                    type: 'Point',
-                    coordinates: [lng * 1, lat * 1]
-                },
-                // distanceField - name of the field that will be created,
-                // and where all the calculated distances will be stored.
-                distanceField: 'distance',
-                distanceMultiplier: multiplier
-            }
-        }, {
-            // Gets rid of all the other data except those specified.
-            $project: {
-                distance: 1,
-                name: 1
-            }
-        }
-    ]);
-    res.status(200).json({
-        status: 'success',
-        data: { data: distances }
-    });
-});
+// exports.getDistances = catchAsync(async (req, res, next) => {
+//     const { latlng, unit } = req.params;
+//     const [lat, lng] = latlng.split(',');
+//     const multiplier = unit === 'mi' ? 0.000621371 : 0.001; // miles : kilometers.
+//     if (!lng || !lat) return next(new AppError('Format of latitude,longitude is required.', 400));
+//     const distances = await Tour.aggregate([
+//         {
+//             // $geoNear - Will automatically use that index in order to perform the calculation.
+//             // Always needs to be the first stage.
+//             $geoNear: {
+//                 nearSphere: {
+//                     type: 'Point',
+//                     coordinates: [lng * 1, lat * 1]
+//                 },
+//                 // distanceField - name of the field that will be created,
+//                 // and where all the calculated distances will be stored.
+//                 distanceField: 'distance',
+//                 distanceMultiplier: multiplier
+//             }
+//         }, {
+//             // Gets rid of all the other data except those specified.
+//             $project: {
+//                 distance: 1,
+//                 name: 1
+//             }
+//         }
+//     ]);
+//     res.status(200).json({
+//         status: 'success',
+//         data: { data: distances }
+//     });
+// });
 
 // Removed - Implemented a generic controller.
 

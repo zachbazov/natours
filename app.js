@@ -5,14 +5,34 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const path = require('path');
+const cookieParser = require('cookie-parser');
 
 const AppError = require('./utils/app-error');
 const errorController = require('./controller/error-controller');
 const tourRouter = require('./route/tour-routes');
 const userRouter = require('./route/user-routes');
 const reviewRouter = require('./route/review-routes');
+const viewRouter = require('./route/view-routes');
 
 const app = express();
+
+// Server-Side Rendering - Pug
+app.set('view engine', 'pug');
+
+/* path - Is a built-in Note module, so a core module,
+    which is used to manipulate path names.
+Defines where these views are actually located in our file system.
+So our pug templates are actually called views in Express */
+app.set('views', path.join(__dirname, 'views'));
+
+// Parses Data from URL Encoded Form.
+// extended - Ability to send complex data.
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// Serving static files that are not defined, makes it accessible to the browser.
+//app.use(express.static(`${__dirname}/public`));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Authentication Security HTTP Headers
 // An Express app should always use the helmet package,
@@ -45,6 +65,9 @@ app.use('/api', limiter);
 // .json() accepts an options object.
 app.use(express.json({ limit: '10kb' }));
 
+// Cookie Parser.
+app.use(cookieParser());
+
 // Express Security - Data Sanitization.
 // Cleans all the data that comes to the application from malicious code.
 // Data sanitization against NoSQL query injection,
@@ -75,12 +98,11 @@ app.use(hpp({
     ]
 }));
 
-// Serving static files that are not defined, makes it accessible to the browser.
-app.use(express.static(`${__dirname}/public`));
-
 // Manipulates the request object, add the current time to the request.
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
+    // Logs cookie.
+    //console.log(req.cookies);
     next();
 });
 
@@ -88,6 +110,7 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/', viewRouter);
 
 // Error Handling
 // In case a route hasn't found on the server.

@@ -12,6 +12,9 @@ router
     .post('/sign-in', authController.signIn);
 
 router
+    .get('/sign-out', authController.signOut);
+
+router
     .post('/forgot-password', authController.forgotPassword);
 
 router

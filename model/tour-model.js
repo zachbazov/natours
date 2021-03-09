@@ -3,7 +3,7 @@ const slugify = require('slugify');
 
 // Removed - Child Referncing
 // Referring to the user inside the model.
-const User = require('./user-model');
+//const User = require('./user-model');
 
 const tourSchema = new mongoose.Schema({
     name: {
@@ -89,7 +89,9 @@ const tourSchema = new mongoose.Schema({
             default: 'Point',
             enum: ['Point']
         },
-        coordinates: [Number]
+        coordinates: [Number],
+        address: String,
+        description: String
     },
     locations: [{
         type: {
@@ -138,7 +140,7 @@ tourSchema.index({ slug: 1 });
 // Geospatial Data.
 // So for geospatial data, this index needs to be a 2D sphere index
 // if the data describes real points on the Earth like sphere.
-tourSchema.index({ startLocation: '2dsphere' });
+//tourSchema.index({ startLocation: '2dsphere' });
 
 // Compound Index
 tourSchema.index({ price: 1, ratingsAverage: -1 });
@@ -163,7 +165,7 @@ tourSchema.virtual('reviews', {
 // Document Middlewares.
 // Runs before .save() and .create(), have access to the document being saved.
 tourSchema.pre('save', function(next) {
-    this.slug = slugify(this.name, { lowercase: true });
+    this.slug = slugify(this.name, { lower: true });
     next();
 });
 
