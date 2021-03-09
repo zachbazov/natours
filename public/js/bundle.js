@@ -8882,12 +8882,12 @@ if (signForm) {
 if (signOutButton) signOutButton.addEventListener('click', _signIn.signOut);
 if (userDataForm) userDataForm.addEventListener('submit', function (e) {
   e.preventDefault();
-  var name = document.getElementById('name').value;
-  var email = document.getElementById('email').value;
-  (0, _updateSettings.updateSettings)('data', {
-    name: name,
-    email: email
-  });
+  var form = new FormData();
+  form.append('name', document.getElementById('name').value);
+  form.append('email', document.getElementById('email').value);
+  form.append('photo', document.getElementById('photo').files[0]);
+  console.log(form);
+  (0, _updateSettings.updateSettings)('data', form);
 });
 
 if (userPassForm) {
