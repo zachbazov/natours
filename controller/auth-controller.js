@@ -114,6 +114,7 @@ exports.protect = catchAsync(async (req, res, next) => {
         return next(new AppError('User recently changed his password, login to gain access.', 401));
 
     req.user = user;
+    res.locals.user = user;
     // Grant access to next route.
     next();
 });
@@ -229,9 +230,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
     user.passwordConfirm = req.body.passwordConfirm;
     await user.save();
 
-    const token = signToken(user._id);
-    res.status(201).json({
-        status: 'success',
-        token
-    });
+    createSendToken(user, 200, res);
 });
