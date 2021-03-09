@@ -35,6 +35,7 @@ router
     .patch(
         '/update-user-profile',
             userController.uploadUserPhoto,
+            userController.resizeUserPhoto,
             userController.updateUserProfile);
 
 router

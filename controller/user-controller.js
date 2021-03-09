@@ -3,21 +3,25 @@ const catchAsync = require('../utils/catch-async');
 const AppError = require('../utils/app-error');
 const controller = require('./generic-controller');
 const multer = require('multer');
+const sharp = require('sharp');
 
+// Removed - due to sharp library for storage.
 // File Uploading - multer.
-// The idea is to store the links for the images on our database,
+// Disk Storage - The idea is to store the links for the images on our database,
 // not to upload them directly.
-const multerStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/img/users');
-    },
-    filename: (req, file, cb) => {
-        // ext - File's storage, how to store the files, with the destination and file name.
-        // Out of the req.body, splitting the mimetype property e,g, 'image/jpeg'.
-        const ext = file.mimetype.split('/')[1];
-        cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
-    }
-});
+// const multerStorage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, 'public/img/users');
+//     },
+//     filename: (req, file, cb) => {
+//         // ext - File's storage, how to store the files, with the destination and file name.
+//         // Out of the req.body, splitting the mimetype property e,g, 'image/jpeg'.
+//         const ext = file.mimetype.split('/')[1];
+//         cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+//     }
+// });
+// Memory - The image will be stored in memory as a buffer.
+const multerStorage = multer.memoryStorage();
 
 // Tests if the uploaded file is an image,
 // is so, we pass true to the cb fn, if not, we pass false along with a an error.
@@ -36,6 +40,32 @@ const multerFilter = (req, file, cb) => {
 const upload = multer({
     storage: multerStorage,
     fileFilter: multerFilter
+});
+
+// Image Resizing.
+// sharp - A module that processing images for nodejs.
+exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
+    if (!req.file) return next();
+
+    // req.file.filename - As we defined to save image onto memory,
+    // at this point, the filename property is undefined.
+    // We need to assign the filename property, as we rely on the req.file
+    // to have the filename property in order to successfully update the photo property.
+    req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+
+    // sharp() - Will create an object, instead of having to write the file to the disk,
+    // and read it again, we simply keep the image in the memory, then read it.
+    await sharp(req.file.buffer)
+        // resize - width & height, as we want a square images, width must be equal to height.
+        // Then it will crop the image, so it covers a specified square.
+        .resize(500, 500)
+        // toFormat - Desired extension for the uploaded file.
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/users/${req.file.filename}`);
+
+    // Calls the next middleware on the stack, in that case, updateUserProfile().
+    next();
 });
 
 // photo - Field name of the model.
