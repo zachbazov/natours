@@ -24,13 +24,18 @@ router
     .use(authController.protect);
 
 router
-    .get('/user-profile', userController.getUserProfile, userController.getUser);
+    .get('/user-profile',
+        userController.getUserProfile,
+        userController.getUser);
 
 router
     .patch('/update-password', authController.updatePassword);
 
 router
-    .patch('/update-user-profile', userController.updateUserProfile);
+    .patch(
+        '/update-user-profile',
+            userController.uploadUserPhoto,
+            userController.updateUserProfile);
 
 router
     .delete('/deactivate', userController.deactivate);

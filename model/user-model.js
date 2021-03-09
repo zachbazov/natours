@@ -22,7 +22,10 @@ const userSchema = new mongoose.Schema({
         // validator
         validate: [validator.isEmail, 'A email must be valid.']
     },
-    photo: String,
+    photo: {
+        type: String,
+        default: 'default.jpg'
+    },
     password: {
         type: String,
         required: [true, 'A password is required.'],
@@ -109,7 +112,7 @@ userSchema.methods.createPasswordResetToken = function() {
     const resetToken = crypto.randomBytes(32).toString('hex');
     this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes - 60 seconds - 1sec = 10mins.
-    console.log({resetToken}, this.passwordResetToken);
+    //console.log({resetToken}, this.passwordResetToken);
     return resetToken;
 }
 

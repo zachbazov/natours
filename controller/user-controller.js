@@ -2,6 +2,44 @@ const User = require('../model/user-model');
 const catchAsync = require('../utils/catch-async');
 const AppError = require('../utils/app-error');
 const controller = require('./generic-controller');
+const multer = require('multer');
+
+// File Uploading - multer.
+// The idea is to store the links for the images on our database,
+// not to upload them directly.
+const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/img/users');
+    },
+    filename: (req, file, cb) => {
+        // ext - File's storage, how to store the files, with the destination and file name.
+        // Out of the req.body, splitting the mimetype property e,g, 'image/jpeg'.
+        const ext = file.mimetype.split('/')[1];
+        cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+    }
+});
+
+// Tests if the uploaded file is an image,
+// is so, we pass true to the cb fn, if not, we pass false along with a an error.
+// Doesn't upload files that are not images.
+const multerFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image')) {
+        cb(null, true);
+    } else {
+        cb(new AppError('Not an image, please select a valid image file.', 400), false);
+    }
+};
+
+// dest - A destination for files to be upload.
+// In cases no options passes, the storing will be on memory.
+//const upload = multer({ dest: 'public/img/users' });
+const upload = multer({
+    storage: multerStorage,
+    fileFilter: multerFilter
+});
+
+// photo - Field name of the model.
+exports.uploadUserPhoto = upload.single('photo');
 
 exports.getAllUsers = controller.getAll(User);
 
@@ -40,12 +78,15 @@ const filterObject = (object, ...allowedFields) => {
 }
 
 exports.updateUserProfile = catchAsync(async (req, res, next) => {
+    //console.log(req.file, req.body);
     if (req.body.password || req.body.passwordConfirm)
         return next(
             new AppError('This route is not for password update, please use /update-password.', 400));
             
     // filteredBody - filtered out unwanted field name that are not specified to be updated.
     const filteredBody = filterObject(req.body, 'name', 'email');
+    // Updates upload - Adds the photo property to the filter.
+    if (req.file) filteredBody.photo = req.file.filename;
 
     const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
         // new - returns the new object, the updated object, instead of the old object.

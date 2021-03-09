@@ -14,6 +14,6 @@ router.get('/sign-in', authController.isSignedIn, viewController.getSignForm);
 router.get('/account', authController.protect, viewController.getAccount);
 
 // Removed - Used for submitting forms via URL encoded.
-router.post('/submit-user-data', authController.protect, viewController.updateUserData);
+//router.post('/submit-user-data', authController.protect, viewController.updateUserData);
 
 module.exports = router;
