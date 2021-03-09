@@ -19,7 +19,13 @@ module.exports = class Messenger {
         // Production
         // Creates a SendGrid transporter.
         if (process.env.NODE_ENV === 'production') {
-            return 1;
+            return nodemailer.createTransport({
+                service: 'SendGrid',
+                auth: {
+                    user: process.env.SENDGRID_USER,
+                    pass: process.env.SENDGRID_PASS
+                }
+            });
         }
 
         // Development
