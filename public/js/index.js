@@ -9,7 +9,7 @@ const signForm = document.querySelector('.form--sign-in');
 const signOutButton = document.querySelector('.nav__el--sign-out');
 const userDataForm = document.querySelector('.form-user-data');
 const userPassForm = document.querySelector('.form-user-password');
-const bookTourButton = document.querySelector('book-tour');
+const bookTourButton = document.getElementById('book-tour');
 
 if (mapBox) {
     const locations = JSON.parse(mapBox.dataset.locations);
@@ -54,9 +54,10 @@ if (userPassForm) {
 };
 
 if (bookTourButton)
-    bookTourButton.addEventListener('click', e => {
-        e.target.contentText = 'Processing...';
+    bookTourButton.addEventListener('click', async e => {
+        e.target.textContent = 'Processing...';
         // e.target - The event that got clicked.
         const { tourId } = e.target.dataset;
-        bookTour(tourId);
+        await bookTour(tourId);
+        e.target.textContent = 'Book Tour Now!';
     });
