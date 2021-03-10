@@ -18,6 +18,7 @@ const userRouter = require('./route/user-routes');
 const reviewRouter = require('./route/review-routes');
 const viewRouter = require('./route/view-routes');
 const bookingRouter = require('./route/booking-routes');
+const bookingController = require('./controller/booking-controller');
 
 const app = express();
 
@@ -144,6 +145,10 @@ const limiter = rateLimit({
 });
 // '/api' - applys to /api routes.
 app.use('/api', limiter);
+
+// Payments - Stripe Webhooks.
+// We need the body coming from this request, not to be JSON.
+app.post('/webhook-checkout', express.raw({ type: 'application/json' }), bookingController.webhookCheckout);
 
 // Body Parsers
 // Reads data from the body into req.body.
