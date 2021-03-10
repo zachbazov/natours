@@ -14,6 +14,7 @@ const tourRouter = require('./route/tour-routes');
 const userRouter = require('./route/user-routes');
 const reviewRouter = require('./route/review-routes');
 const viewRouter = require('./route/view-routes');
+const bookingRouter = require('./route/booking-routes');
 
 const app = express();
 
@@ -111,6 +112,7 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/', viewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 // Error Handling
 // In case a route hasn't found on the server.

@@ -45,7 +45,7 @@ module.exports = class Messenger {
         const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
             firstname: this.firstname,
             url: this.url,
-            subject: this.subject
+            subject
         });
 
         // Defines the email options.
@@ -63,7 +63,7 @@ module.exports = class Messenger {
 
     // Customized sender function.
     async sendWelcome() {
-        await this.send('Welcome', 'Welcome to the Natours family!');
+        await this.send('welcome', 'Welcome to the Natours family!');
     };
 
     async sendPasswordReset() {

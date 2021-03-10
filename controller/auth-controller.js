@@ -179,7 +179,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
     try {
         const resetUrl = 
-        `${req.protocol}://${req.get('host')}/api/v1/users/reset-password/${resetToken}`
+            `${req.protocol}://${req.get('host')}/api/v1/users/reset-password/${resetToken}`
         // await Messenger({
         //     email: user.email,
         //     subject: 'Your password reset token.',
