@@ -9,6 +9,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     //Gets the currently booked tour.
     const tour = await Tour.findById(req.params.tourId);
+    console.log(req.params.tourId);
     if (!tour) return next(new AppError('No tour found for checkout session.', 400));
     // Creates a checkout session.
     const session = await stripe.checkout.sessions.create({
@@ -27,6 +28,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
             quantity: 1
         }]
     });
+    console.log(session);
     // Creates a session as response.
     res.status(200).json({
         status: 'success',
@@ -50,13 +52,13 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 //     */
 // });
 // testing
-const createBookingCheckout = async session => {
+const createBookingCheckout = catchAsync(async session => {
     const tour = session.client_reference_id;
     const user = (await User.findOne({ email: session.customer_email })).id;
     const price = session.line_items[0].amount / 100;
     console.log(tour, user, price);
     //await Booking.create({ tour, user, price });
-};
+});
 
 // Will run whenever a payment was successful.
 // Stripe then will call our webhook, which is the URL,
@@ -69,7 +71,9 @@ exports.webhookCheckout = (req, res, next) => {
     let event;
     try {
         event = stripe.webhooks.constructEvent(req.body, signature, process.env.STRIPE_WEBHOOK_SECRET);
+        console.log(event);
     } catch (err) {
+        console.log(err);
         return res.status(400).send(`[ERROR] Webhook error: ${err.message}`);
     }
     if (event.type === 'checkout.session.completed')
