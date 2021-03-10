@@ -55,7 +55,7 @@ const createBookingCheckout = async session => {
     const user = (await User.findOne({ email: session.customer_email })).id;
     const price = session.line_items[0].amount / 100;
     console.log(tour, user, price);
-    await Booking.create({ tour, user, price });
+    //await Booking.create({ tour, user, price });
 };
 
 // Will run whenever a payment was successful.
@@ -74,7 +74,7 @@ exports.webhookCheckout = (req, res, next) => {
     }
     if (event.type === 'checkout.session.completed')
         createBookingCheckout(event.data.object);
-    res.status(200).json({ received: true });
+    //res.status(200).json({ received: true });
 };
 
 exports.getBooking = controller.getOne(Booking);
