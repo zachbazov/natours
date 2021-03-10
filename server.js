@@ -7,7 +7,7 @@ const app = require('./app');
 
 // Uncaught Exception Error
 process.on('uncaughtException', (err) => {
-    console.log(`[UncaughtException] [${err.name}]`, err.message);
+    console.log(`[UncaughtException] 💥 [${err.name}]`, err.message);
     process.exit(1);
 });
 
@@ -29,7 +29,7 @@ mongoose
         useFindAndModify: false,
         useUnifiedTopology: true,
     })
-    .then(() => console.log('DATABASE: CONNECTED'));
+    .then(() => console.log('DATABASE: 🟢'));
 
 const server = app.listen(process.env.PORT, 
     () => console.log(`PORT: ${process.env.PORT}\nENVIRONMENT: ${app.get('env')}`)
@@ -37,7 +37,13 @@ const server = app.listen(process.env.PORT,
 
 // Unhandled Rejection Error
 process.on('unhandledRejection', (err) => {
-    console.log(`[UnhandledRejection] [${err.name}]`, err.message);
+    console.log(`[UnhandledRejection] 💥 [${err.name}]`, err.message);
     // Optional: crashing the server.
     server.close(() => process.exit(1));
+});
+
+// SIGTERM - A signal that used to cause a problem to really stop running.
+process.on('SIGTERM', () => {
+    console.log('[SIGTERM] 💥 received, shutting down...');
+    server.close(() => console.log('[SIGTERM] 💥 process terminated.'));
 });
