@@ -4,6 +4,8 @@ const controller = require('./generic-controller');
 const Tour = require('../model/tour-model');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+const CSP_PERMISSIONS = `default-src 'self' https://*.mapbox.com ;base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src https://cdnjs.cloudflare.com https://api.mapbox.com 'self' blob: ;script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests;`;
+
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     // Gets the currently booked tour.
     const tour = await Tour.findById(req.params.tourId);
@@ -25,7 +27,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         }]
     });
     // Creates a session as response.
-    res.status(200).json({
+    res.status(200).set('Content-Security-Policy', CSP_PERMISSIONS).json({
         status: 'success',
         session
     });
