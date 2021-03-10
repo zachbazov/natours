@@ -14,24 +14,22 @@ const signToken = id => {
     );
 }
 
+// Authentication JWT Cookie
+// A browser automatically stores a cookie that it recieves,
+// and sends it back along with all future requests to the same server.
 const createSendToken = (user, statusCode, res) => {
     const token = signToken(user._id);
-
-    // Authentication JWT Cookie
-    // A browser automatically stores a cookie that it recieves,
-    // and sends it back along with all future requests to the same server.
-
     // Cookie options object.
-    const mOptions = {
+    const options = {
         expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
         // httpOnly - Cookie cannot be manipulated or destroyed.
         // Recieves the cookie, stores and sends it along with every request.
         httpOnly: true
     };
 
-    if (process.env.NODE_ENV === 'production') mOptions.secure = true;
+    if (process.env.NODE_ENV === 'production') options.secure = true;
 
-    res.cookie('jwt', token, mOptions);
+    res.cookie('jwt', token, options);
 
     // Removes the password from the signup output.
     user.password = undefined;

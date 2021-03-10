@@ -5,7 +5,7 @@ export const signIn = async (email, password) => {
     try {
         const res = await axios({
             method: 'POST',
-            url: 'http://127.0.0.1:3000/api/v1/users/sign-in',
+            url: '/api/v1/users/sign-in',
             data: { email, password }
         });
 
@@ -15,9 +15,8 @@ export const signIn = async (email, password) => {
                 location.assign('/');
             }, 2000);
         }
-
-        //console.log(res);
     } catch (err) {
+        console.log(err);
         showAlert('error', err.response.data.message);
     }
 };
@@ -26,7 +25,7 @@ export const signOut = async () => {
     try {
         const res = await axios({
             method: 'GET',
-            url: 'http://127.0.0.1:3000/api/v1/users/sign-out'
+            url: '/api/v1/users/sign-out'
         });
         
         if (res.data.status === 'success') {

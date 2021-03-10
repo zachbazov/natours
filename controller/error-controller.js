@@ -33,7 +33,7 @@ const sendErrorDev = (err, req, res) => {
     }
     
     // Rendered site Handling
-    console.log('[ERROR]', err);
+    console.log('[ERROR] 💥', err);
     return res.status(err.statusCode).render('error', {
         title: 'Internal Error',
         message: err.message
@@ -52,7 +52,7 @@ const sendErrorProd = (err, req, res) => {
         }
 
         // Programming or unknown error, doesn't leak error.
-        console.log('[ERROR]', err);
+        console.log('[ERROR] 💥', err);
         return res.status(500).json({
             status: 'error',
             message: 'Internal Error'
@@ -69,7 +69,7 @@ const sendErrorProd = (err, req, res) => {
     }
 
     // Programming or unknown error, doesn't leak error.
-    console.log('[ERROR]', err);
+    console.log('[ERROR] 💥', err);
     return res.status(err.statusCode).render('error', {
         title: 'Internal Error',
         message: 'Please try again later.'

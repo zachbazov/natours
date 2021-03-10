@@ -13,7 +13,6 @@ const bookTourButton = document.getElementById('book-tour');
 
 if (mapBox) {
     const locations = JSON.parse(mapBox.dataset.locations);
-    //console.log(locations);
     displayMap(locations);
 }
 
@@ -47,9 +46,6 @@ if (userPassForm) {
         const passwordConfirm = document.getElementById('password-confirm').value;
         await updateSettings('password', { passwordCurrent, password, passwordConfirm });
         document.querySelector('.btn--save-password').textContent = 'Save password'
-        // document.getElementById('password-current').value = ''
-        // document.getElementById('password').value = '';
-        // document.getElementById('password-confirm').value = '';
     });
 };
 

@@ -8,6 +8,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 
 const AppError = require('./utils/app-error');
 const errorController = require('./controller/error-controller');
@@ -169,12 +170,16 @@ app.use(hpp({
 }));
 
 // Manipulates the request object, add the current time to the request.
-app.use((req, res, next) => {
-    req.requestTime = new Date().toISOString();
-    // Logs cookie.
-    //console.log(req.cookies);
-    next();
-});
+// app.use((req, res, next) => {
+//     req.requestTime = new Date().toISOString();
+//     // Logs cookie.
+//     //console.log(req.cookies);
+//     next();
+// });
+
+// Compression.
+// Compresses all the text that send to clients.
+app.use(compression());
 
 // Route Mounting
 app.use('/api/v1/tours', tourRouter);
