@@ -1,6 +1,6 @@
 const express = require('express');
-const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
 const helmet = require('helmet');
 const csp = require('express-csp');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -9,6 +9,7 @@ const hpp = require('hpp');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const cors = require('cors');
 
 const AppError = require('./utils/app-error');
 const errorController = require('./controller/error-controller');
@@ -39,6 +40,17 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 // Serving static files that are not defined, makes it accessible to the browser.
 //app.use(express.static(`${__dirname}/public`));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// CORS.
+// Enables Cross-Origin Resorce Sharing for all incoming requests.
+// e.g. - Access-Control-Allow-Origin set to *, all.
+// If we had our API at api.example.com, our front-end at example.com,
+// so we allow to that origin to make requests to the API.
+//app.use(cors({ origin: 'https//www.example.com' }));
+app.use(cors());
+
+// options - An HTTP method that we can respond to.
+app.options('*', cors());
 
 // Authentication Security HTTP Headers
 // An Express app should always use the helmet package,
