@@ -13,7 +13,7 @@ block content
             nav.user-view__menu
                 ul.side-nav
                     +navItem('#', 'Settings', 'settings', true)
-                    +navItem('#', 'Bookings', 'briefcase')
+                    +navItem('/my-bookings', 'Bookings', 'briefcase')
                     +navItem('#', 'Reviews', 'star')
                     +navItem('#', 'Billing', 'credit-card')
                         
@@ -21,10 +21,10 @@ block content
                     .admin-nav
                         h5.admin-nav__heading Admin
                         ul.side-nav
-                            +navItem('#', 'Manage tours', 'map')
                             +navItem('#', 'Manage users', 'users')
-                            +navItem('#', 'Manage reviews', 'star')
+                            +navItem('#', 'Manage tours', 'map')
                             +navItem('#', 'Manage bookings', 'briefcase')
+                            +navItem('#', 'Manage reviews', 'star')
 
             .user-view__content
                 .user-view__form-container

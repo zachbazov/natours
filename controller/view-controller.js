@@ -2,6 +2,7 @@ const catchAsync = require('../utils/catch-async');
 const AppError = require('../utils/app-error');
 const Tour = require('../model/tour-model');
 const User = require('../model/user-model');
+const Booking = require('../model/booking-model');
 
 const CSP_PERMISSIONS = `default-src 'self' https://*.mapbox.com ;base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src https://cdnjs.cloudflare.com https://api.mapbox.com 'self' blob: ;script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests;`;
 
@@ -23,6 +24,19 @@ exports.getTour = catchAsync(async (req, res, next) => {
     res.status(200).set('Content-Security-Policy', CSP_PERMISSIONS).render('tour', {
         title: tour.name,
         tour
+    });
+});
+
+exports.getMyBookings = catchAsync(async (req, res, next) => {
+    // Finds all bookings for the current user.
+    const bookings = await Booking.find({ user: req.user.id });
+    // Finds users with the returned IDs.
+    const tourIds = bookings.map(el => el.tour);
+    // Selects all the tours which have an id that in the userIds array.
+    const tours = await Tour.find({ _id: { $in: tourIds } });
+    res.status(200).render('overview', {
+        title: 'My Bookings',
+        tours
     });
 });
 
