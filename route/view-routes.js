@@ -18,6 +18,8 @@ router.get('/account', authController.protect, viewController.getAccount);
 
 router.get('/my-bookings', authController.protect, viewController.getMyBookings);
 
+router.get('/sign-up', viewController.getSignUpForm);
+
 // Removed - Used for submitting forms via URL encoded.
 //router.post('/submit-user-data', authController.protect, viewController.updateUserData);
 

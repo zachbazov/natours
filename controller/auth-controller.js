@@ -28,7 +28,7 @@ const createSendToken = (user, statusCode, req, res) => {
         // Heroku specifics.
         // Tests if the connection is secure, JUST with a deployed heroku app!!!
         // req.headers... - used for proxy.
-        secure: req.secure || req.headers('x-forwarded-proto') === 'https'
+        //secure: req.secure || req.headers('x-forwarded-proto') === 'https'
     });
 
     // Removes the password from the signup output.
@@ -44,23 +44,26 @@ const createSendToken = (user, statusCode, req, res) => {
 exports.signUp = catchAsync(async (req, res, next) => {
     // Instead of using .create(req.body), which is a serious security flow.
     // We'll pass in the necessary data only.
-    const newUser = await User.create({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password,
-        passwordConfirm: req.body.passwordConfirm
-    });
-
+    // const newUser = await User.create({
+    //     name: req.body.name,
+    //     email: req.body.email,
+    //     password: req.body.password,
+    //     passwordConfirm: req.body.passwordConfirm
+    // });
+    const { name, email, password, passwordConfirm } = req.body;
+    console.log('AUTHC', name, email, password, passwordConfirm);
+    const newUser = await User.create({ name, email, password, passwordConfirm });
+    res.status(200).json({ status: 'success', data: {newUser} });
     // Advanced Emails.
-    const url = `${req.protocol}://${req.get('host')}/sign-in`;
-    await new Messenger(newUser, url).sendWelcome();
+    //const url = `${req.protocol}://${req.get('host')}/sign-in`;
+    //await new Messenger(newUser, url).sendWelcome();
 
     // Remember: In MongoDB, an id argument specified as _id.
     // In .sign(payload, jwt-secret),
     // the payload is actually an object for all the data that we want to store inside of the token.
     // That payload object will be put into the jwt token.
     //jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
-    createSendToken(newUser, 201, req, res);
+    //createSendToken(newUser, 201, req, res);
 });
 
 exports.signIn = catchAsync(async (req, res, next) => {

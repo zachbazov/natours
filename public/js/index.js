@@ -1,12 +1,13 @@
 import '@babel/polyfill';
 import { displayMap } from './mapbox';
-import { signIn, signOut } from './sign-in';
+import { signUp, signIn, signOut } from './sign-in';
 import { updateSettings } from './update-settings';
 import { bookTour } from './stripe';
 import { showAlert } from './alert';
 
 const mapBox = document.getElementById('map');
 const signForm = document.querySelector('.form--sign-in');
+const signUpForm = document.querySelector('.form--sign-up');
 const signOutButton = document.querySelector('.nav__el--sign-out');
 const userDataForm = document.querySelector('.form-user-data');
 const userPassForm = document.querySelector('.form-user-password');
@@ -16,6 +17,9 @@ if (mapBox) {
     const locations = JSON.parse(mapBox.dataset.locations);
     displayMap(locations);
 }
+
+const alertMessage = document.querySelector('body').dataset.alert;
+if (alertMessage) showAlert('success', alertMessage, 10);
 
 if (signForm) {
     document.querySelector('.form').addEventListener('submit', e => {
@@ -59,5 +63,14 @@ if (bookTourButton)
         e.target.textContent = 'Book Tour Now!';
     });
 
-const alertMessage = document.querySelector('body').dataset.alert;
-if (alertMessage) showAlert('success', alertMessage, 6);
+if (signUpForm)
+    document.querySelector('.form--sign-up').addEventListener('submit', e => {
+        // prevents the form from loding any other page.
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password-confirm').value;
+        //console.log(name, email, password, passwordConfirm);
+        signUp(name, email, password, passwordConfirm);
+    });

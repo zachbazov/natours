@@ -1,6 +1,25 @@
 import axios from 'axios';
 import { showAlert } from './alert';
 
+export const signUp = async (name, email, password, passwordConfirm) => {
+    try {
+        const res = await axios({
+            method: 'POST',
+            url: '/api/v1/users/sign-up',
+            data: { name, email, password, passwordConfirm }
+        });
+        if (res.data.status === 'success') {
+            showAlert('success', 'Your account has been created successfully.');
+            window.setTimeout(() => {
+                location.assign('/sign-in');
+            }, 2000);
+        }
+    } catch (err) {
+        console.error(err);
+        showAlert('error', err.response.data.message)
+    }
+};
+
 export const signIn = async (email, password) => {
     try {
         const res = await axios({

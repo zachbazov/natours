@@ -75,6 +75,8 @@ exports.getAllUsers = controller.getAll(User);
 
 exports.getUser = controller.getOne(User);
 
+exports.createUser = controller.createOne(User);
+
 exports.updateUser = controller.updateOne(User);
 
 exports.deleteUser = controller.deleteOne(User);

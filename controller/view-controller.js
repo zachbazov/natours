@@ -4,8 +4,6 @@ const Tour = require('../model/tour-model');
 const User = require('../model/user-model');
 const Booking = require('../model/booking-model');
 
-const CSP_PERMISSIONS = `default-src 'self' https://*.mapbox.com ;base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src https://cdnjs.cloudflare.com https://api.mapbox.com 'self' blob: ;script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests;`;
-
 exports.alerts = (req, res, next) => {
     const { alert } = req.query;
     // data-alert property at base template.
@@ -16,12 +14,11 @@ exports.alerts = (req, res, next) => {
 
 exports.getOverview = catchAsync(async (req, res, next) => {
     const tours = await Tour.find();
-    res.status(200).set('Content-Security-Policy', CSP_PERMISSIONS).render('overview', {
+    res.status(200).render('overview', {
         title: 'All tours',
         tours
     });
 });
-
 
 exports.getTour = catchAsync(async (req, res, next) => {
     const tour = await Tour.findOne({ slug: req.params.slug }).populate({
@@ -29,7 +26,7 @@ exports.getTour = catchAsync(async (req, res, next) => {
         select: 'review rating user'
     });
     if (!tour) return next(new AppError('No tour found.', 400));
-    res.status(200).set('Content-Security-Policy', CSP_PERMISSIONS).render('tour', {
+    res.status(200).render('tour', {
         title: tour.name,
         tour
     });
@@ -49,14 +46,20 @@ exports.getMyBookings = catchAsync(async (req, res, next) => {
 });
 
 exports.getSignForm = (req, res) => {
-    res.status(200).set('Content-Security-Policy', CSP_PERMISSIONS).render('sign-in', {
+    res.status(200).render('sign-in', {
         title: 'Sign In'
     });
 };
 
 exports.getAccount = (req, res) => {
-    res.status(200).set('Content-Security-Policy', CSP_PERMISSIONS).render('account', {
+    res.status(200).render('account', {
         title: 'My Account'
+    });
+};
+
+exports.getSignUpForm = (req, res) => {
+    res.status(200).render('sign-up', {
+        title: 'Sign Up'
     });
 };
 
@@ -68,7 +71,7 @@ exports.updateUserData = catchAsync(async (req, res, next) => {
         new: true,
         runValidators: true
     });
-    res.status(200).set('Content-Security-Policy', CSP_PERMISSIONS).render('account', {
+    res.status(200).render('account', {
         title: 'My Account',
         user: updatedUser
     });
