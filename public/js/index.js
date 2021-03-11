@@ -3,6 +3,7 @@ import { displayMap } from './mapbox';
 import { signIn, signOut } from './sign-in';
 import { updateSettings } from './update-settings';
 import { bookTour } from './stripe';
+import { showAlert } from './alert';
 
 const mapBox = document.getElementById('map');
 const signForm = document.querySelector('.form--sign-in');
@@ -57,3 +58,6 @@ if (bookTourButton)
         await bookTour(tourId);
         e.target.textContent = 'Book Tour Now!';
     });
+
+const alertMessage = document.querySelector('body').dataset.alert;
+if (alert) showAlert('success', alertMessage, 6);

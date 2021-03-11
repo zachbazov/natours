@@ -6,6 +6,14 @@ const Booking = require('../model/booking-model');
 
 const CSP_PERMISSIONS = `default-src 'self' https://*.mapbox.com ;base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src https://cdnjs.cloudflare.com https://api.mapbox.com 'self' blob: ;script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests;`;
 
+exports.alerts = (req, res, next) => {
+    const { alert } = req.query;
+    // data-alert property at base template.
+    if (alert === 'booking')
+        res.locals.alert = 'Your booking has been registered.\nPlease check your email for a confirmation.\nIt takes up to a few minutes for your booking to be updated at our end.'
+    next();
+};
+
 exports.getOverview = catchAsync(async (req, res, next) => {
     const tours = await Tour.find();
     res.status(200).set('Content-Security-Policy', CSP_PERMISSIONS).render('overview', {

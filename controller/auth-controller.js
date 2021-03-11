@@ -116,6 +116,7 @@ exports.protect = catchAsync(async (req, res, next) => {
         return next(new AppError('User recently changed his password, login to gain access.', 401));
 
     req.user = user;
+    // Makes variables accessible in our template files.
     res.locals.user = user;
     // Grant access to next route.
     next();
