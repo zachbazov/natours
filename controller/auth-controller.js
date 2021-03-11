@@ -28,7 +28,7 @@ const createSendToken = (user, statusCode, req, res) => {
         // Heroku specifics.
         // Tests if the connection is secure, JUST with a deployed heroku app!!!
         // req.headers... - used for proxy.
-        //secure: req.secure || req.headers('x-forwarded-proto') === 'https'
+        secure: req.secure || req.headers('x-forwarded-proto') === 'https'
     });
 
     // Removes the password from the signup output.
