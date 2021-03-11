@@ -60,4 +60,4 @@ if (bookTourButton)
     });
 
 const alertMessage = document.querySelector('body').dataset.alert;
-if (alert) showAlert('success', alertMessage, 6);
+if (alertMessage) showAlert('success', alertMessage, 6);
