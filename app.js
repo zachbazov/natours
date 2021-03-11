@@ -147,7 +147,13 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // Payments - Stripe Webhooks.
-// We need the body coming from this request, not to be JSON.
+/*
+The reason for that is that in this handler function,
+when we receive the body from Stripe,
+the Stripe function that we're then gonna use
+to actually read the body needs this body in a raw form,
+so basically as a string and not as JSON.
+*/
 app.post('/webhook-checkout', express.raw({ type: 'application/json' }), bookingController.webhookCheckout);
 
 // Body Parsers
